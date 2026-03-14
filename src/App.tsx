@@ -79,7 +79,7 @@ const App: React.FC = () => {
 					return { ...s, inputs: newInputs };
 				});
 			}
-			if (key.backspace) {
+			if (key.backspace || key.delete || input === '\b' || input === '\u007f') {
 				setState((s: AppState) => {
 					const newInputs = [...s.inputs];
 					newInputs[s.inputIndex] = newInputs[s.inputIndex].slice(0, -1);
