@@ -5,11 +5,11 @@ import App from './App.js';
 const { unmount } = render(<App />);
 
 process.on('SIGINT', () => {
-  unmount();
-  process.exit(0);
+	unmount();
+	process.exit(0);
 });
 
 process.on('SIGTERM', () => {
-  unmount();
-  process.exit(0);
+	unmount();
+	process.exit(0);
 });
