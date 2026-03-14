@@ -39,7 +39,7 @@ The project uses Husky with lint-staged. On every `git commit`:
 ### TypeScript Configuration
 - Target: ES2020
 - JSX: react
-- Strict mode: disabled (for flexibility)
+- Strict mode: enabled
 - Module resolution: bundler
 
 ### Formatting (Prettier)
@@ -216,8 +216,10 @@ useInput((input: string, key: KeyInput) => {
 
 ```
 src/
-├── App.tsx      # Main application component
-└── index.tsx    # Entry point (renders App)
+├── App.tsx              # Main application component (rendering only)
+├── index.tsx            # Entry point (renders App)
+└── hooks/
+    └── useAppInput.ts   # Custom hook with state and input handling
 ```
 
 ---
