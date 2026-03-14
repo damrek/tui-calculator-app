@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import { useAppInput } from './hooks/useAppInput.js';
+import { useAppInput } from './hooks/useAppInput';
 
 const App: React.FC = () => {
   const { state } = useAppInput();
