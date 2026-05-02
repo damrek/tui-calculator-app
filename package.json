@@ -9,7 +9,12 @@
     "dev": "tsx src/index.tsx",
     "lint": "eslint src --ext .ts,.tsx",
     "format": "prettier --write src/**/*.{ts,tsx}",
-    "prepare": "husky"
+    "prepare": "husky",
+    "dist": "npm run build && bun run build:all",
+    "build:linux": "bun build --compile --target=bun-linux-x64 ./dist/index.js --outfile ./dist/calculator-linux",
+    "build:win": "bun build --compile --target=bun-windows-x64 ./dist/index.js --outfile ./dist/calculator.exe",
+    "build:mac": "bun build --compile --target=bun-darwin-arm64 ./dist/index.js --outfile ./dist/calculator-macos",
+    "build:all": "bun run build:linux && bun run build:win && bun run build:mac"
   },
   "keywords": [],
   "author": "",
@@ -18,6 +23,7 @@
   "dependencies": {
     "ink": "^6.8.0",
     "react": "^19.2.4",
+    "react-devtools-core": "^7.0.1",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {

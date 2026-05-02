@@ -251,5 +251,26 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 - Current development: Node 24
 
 ### Dependencies
-- **Production**: ink, react, react-dom
+- **Production**: ink, react, react-dom, react-devtools-core
 - **Dev**: typescript, eslint, prettier, husky, lint-staged
+
+---
+
+## Distribution (Bun)
+
+### Create Standalone Binaries
+```bash
+# Requires Bun installed: curl -fsSL https://bun.sh/install | bash
+npm run dist    # Build all binaries (Linux, Windows, macOS)
+npm run build:linux   # Linux x64
+npm run build:win     # Windows x64
+npm run build:mac     # macOS ARM
+```
+
+### Output
+Binaries are created in `dist/`:
+- `calculator-linux` - Linux executable
+- `calculator.exe` - Windows executable
+- `calculator-macos` - macOS executable (ARM)
+
+These are portable, standalone executables (no installation required).
