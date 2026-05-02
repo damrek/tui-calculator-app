@@ -13,13 +13,7 @@ const App: React.FC = () => {
       padding={1}
     >
       <Text bold color="cyan">
-        ╔══════════════════════╗
-      </Text>
-      <Text bold color="cyan">
-        ║ Calculator Menu ║
-      </Text>
-      <Text bold color="cyan">
-        ╚══════════════════════╝
+        Calculator Menu
       </Text>
       <Text> </Text>
       {state.selectedIndex === 0 ? (
@@ -90,13 +84,7 @@ const App: React.FC = () => {
       padding={1}
     >
       <Text bold color="green">
-        ╔══════════════════════╗
-      </Text>
-      <Text bold color="green">
-        ║ Result ║
-      </Text>
-      <Text bold color="green">
-        ╚══════════════════════╝
+        Result
       </Text>
       <Text> </Text>
       <Text bold>
