@@ -1,8 +1,15 @@
 {
-  "name": "tui-example",
+  "name": "tui-calculator-app",
   "version": "1.0.0",
   "description": "Simple Calculator TUI App",
   "main": "dist/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/damrek/tui-calculator-app.git"
+  },
+  "bugs": "https://github.com/damrek/tui-calculator-app/issues",
+  "homepage": "https://github.com/damrek/tui-calculator-app#readme",
+  "author": "damrek",
   "scripts": {
     "build": "tsc",
     "start": "tsx dist/index.js",
