@@ -24,7 +24,6 @@
     "build:all": "bun run build:linux && bun run build:win && bun run build:mac"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
