@@ -1,12 +1,19 @@
 import { useInput } from 'ink';
 import { useState, useCallback } from 'react';
 
-type Screen = 'menu' | 'input-sum' | 'input-sub' | 'result';
-type Operation = 'sum' | 'sub' | null;
+type Screen =
+  | 'menu'
+  | 'input-sum'
+  | 'input-sub'
+  | 'input-mul'
+  | 'input-div'
+  | 'result';
+type Operation = 'sum' | 'sub' | 'mul' | 'div' | null;
 
 export interface AppState {
   screen: Screen;
   result?: number;
+  error?: string;
   selectedIndex: number;
   inputIndex: number;
   inputs: string[];
@@ -38,6 +45,7 @@ export const useAppInput = () => {
       inputIndex: 0,
       inputs: ['', ''],
       operation: null,
+      error: undefined,
     });
   }, []);
 
@@ -61,12 +69,73 @@ export const useAppInput = () => {
     });
   }, []);
 
+  const goToInputMul = useCallback(() => {
+    setState({
+      screen: 'input-mul',
+      selectedIndex: 0,
+      inputIndex: 0,
+      inputs: ['', ''],
+      operation: 'mul',
+    });
+  }, []);
+
+  const goToInputDiv = useCallback(() => {
+    setState({
+      screen: 'input-div',
+      selectedIndex: 0,
+      inputIndex: 0,
+      inputs: ['', ''],
+      operation: 'div',
+    });
+  }, []);
+
   const calculateAndShowResult = useCallback(
-    (operation: 'sum' | 'sub') => {
+    (operation: 'sum' | 'sub' | 'mul' | 'div') => {
       const a = parseFloat(state.inputs[0]) || 0;
       const b = parseFloat(state.inputs[1]) || 0;
-      const result = operation === 'sum' ? a + b : a - b;
-      setState({ ...state, screen: 'result', result, operation });
+      if (operation === 'sum') {
+        setState({
+          ...state,
+          screen: 'result',
+          result: a + b,
+          operation,
+          error: undefined,
+        });
+      } else if (operation === 'sub') {
+        setState({
+          ...state,
+          screen: 'result',
+          result: a - b,
+          operation,
+          error: undefined,
+        });
+      } else if (operation === 'mul') {
+        setState({
+          ...state,
+          screen: 'result',
+          result: a * b,
+          operation,
+          error: undefined,
+        });
+      } else if (operation === 'div') {
+        if (b === 0) {
+          setState({
+            ...state,
+            screen: 'result',
+            result: undefined,
+            operation,
+            error: 'Error: division by zero',
+          });
+        } else {
+          setState({
+            ...state,
+            screen: 'result',
+            result: a / b,
+            operation,
+            error: undefined,
+          });
+        }
+      }
     },
     [state]
   );
@@ -76,19 +145,26 @@ export const useAppInput = () => {
       if (key.upArrow) {
         setState((s: AppState) => ({
           ...s,
-          selectedIndex: (s.selectedIndex + 2) % 3,
+          selectedIndex: (s.selectedIndex + 4) % 5,
         }));
       } else if (key.downArrow) {
         setState((s: AppState) => ({
           ...s,
-          selectedIndex: (s.selectedIndex + 1) % 3,
+          selectedIndex: (s.selectedIndex + 1) % 5,
         }));
       } else if (key.return) {
         if (state.selectedIndex === 0) goToInputSum();
         else if (state.selectedIndex === 1) goToInputSub();
+        else if (state.selectedIndex === 2) goToInputMul();
+        else if (state.selectedIndex === 3) goToInputDiv();
         else process.exit(0);
       }
-    } else if (state.screen === 'input-sum' || state.screen === 'input-sub') {
+    } else if (
+      state.screen === 'input-sum' ||
+      state.screen === 'input-sub' ||
+      state.screen === 'input-mul' ||
+      state.screen === 'input-div'
+    ) {
       if (key.escape) {
         goToMenu();
         return;
@@ -105,7 +181,15 @@ export const useAppInput = () => {
           setState((s: AppState) => ({ ...s, inputIndex: 1 }));
           return;
         }
-        calculateAndShowResult(state.screen === 'input-sum' ? 'sum' : 'sub');
+        const op =
+          state.screen === 'input-sum'
+            ? 'sum'
+            : state.screen === 'input-sub'
+              ? 'sub'
+              : state.screen === 'input-mul'
+                ? 'mul'
+                : 'div';
+        calculateAndShowResult(op);
         return;
       }
       if (
@@ -140,5 +224,12 @@ export const useAppInput = () => {
     }
   });
 
-  return { state, goToMenu, goToInputSum, goToInputSub };
+  return {
+    state,
+    goToMenu,
+    goToInputSum,
+    goToInputSub,
+    goToInputMul,
+    goToInputDiv,
+  };
 };

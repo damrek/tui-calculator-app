@@ -8,6 +8,7 @@ This is a **TUI (Terminal User Interface) Calculator App** built with:
 - **Framework**: Ink (React for CLIs)
 - **Language**: TypeScript
 - **Target**: Node.js terminal applications
+- **Operations**: sum, subtract, multiply, divide
 
 ---
 
@@ -108,9 +109,10 @@ import { Box, Text } from 'ink';
 interface AppState {
   screen: Screen;
   selectedIndex: number;
+  error?: string;
 }
 
-type Screen = 'menu' | 'input-sum' | 'result';
+type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div' | 'result';
 ```
 
 ### Avoid `any`
@@ -197,6 +199,9 @@ useInput((input: string, key: KeyInput) => {
 ---
 
 ## Error Handling
+
+### Division by Zero
+When the user performs a division by zero, the app sets `error: 'Error: division by zero'` in the state (instead of a numeric result). The `result` field is `undefined` in this case.
 
 ### Keyboard Input
 - Always provide escape routes (e.g., Esc to go back)

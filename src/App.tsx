@@ -31,6 +31,20 @@ const App: React.FC = () => {
         <Text> Decrease two numbers</Text>
       )}
       {state.selectedIndex === 2 ? (
+        <Text bold color="green">
+          ▶ Multiply two numbers
+        </Text>
+      ) : (
+        <Text> Multiply two numbers</Text>
+      )}
+      {state.selectedIndex === 3 ? (
+        <Text bold color="green">
+          ▶ Divide two numbers
+        </Text>
+      ) : (
+        <Text> Divide two numbers</Text>
+      )}
+      {state.selectedIndex === 4 ? (
         <Text bold color="red">
           ▶ Exit
         </Text>
@@ -73,6 +87,8 @@ const App: React.FC = () => {
   const getOperationSymbol = () => {
     if (state.operation === 'sum') return '+';
     if (state.operation === 'sub') return '-';
+    if (state.operation === 'mul') return '*';
+    if (state.operation === 'div') return '/';
     return '';
   };
 
@@ -91,10 +107,17 @@ const App: React.FC = () => {
         {' '}
         {state.inputs[0]} {getOperationSymbol()} {state.inputs[1]} ={' '}
       </Text>
-      <Text bold color="green">
-        {' '}
-        {state.result}
-      </Text>
+      {state.error ? (
+        <Text bold color="red">
+          {' '}
+          {state.error}
+        </Text>
+      ) : (
+        <Text bold color="green">
+          {' '}
+          {state.result}
+        </Text>
+      )}
       <Text> </Text>
       <Text dimColor>Press any key to continue...</Text>
     </Box>
@@ -105,6 +128,8 @@ const App: React.FC = () => {
       {state.screen === 'menu' && renderMenu()}
       {state.screen === 'input-sum' && renderInput('SUM')}
       {state.screen === 'input-sub' && renderInput('DECREASE')}
+      {state.screen === 'input-mul' && renderInput('MULTIPLY')}
+      {state.screen === 'input-div' && renderInput('DIVIDE')}
       {state.screen === 'result' && renderResult()}
     </Box>
   );

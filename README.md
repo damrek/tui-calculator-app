@@ -7,7 +7,8 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Interactive terminal-based calculator interface
 - Built with React-like components using Ink
 - TypeScript for type safety
-- Multiple calculation modes (sum, etc.)
+- Multiple calculation modes (sum, subtract, multiply, divide)
+- Division by zero error handling
 - Clean, responsive terminal UI
 
 ## Project Structure
