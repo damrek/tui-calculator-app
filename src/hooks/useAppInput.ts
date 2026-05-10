@@ -1,5 +1,6 @@
 import { useInput } from 'ink';
 import { useState, useCallback } from 'react';
+import { calculate, parseInput, Operation } from '../utils/calculator';
 
 type Screen =
   | 'menu'
@@ -8,7 +9,6 @@ type Screen =
   | 'input-mul'
   | 'input-div'
   | 'result';
-type Operation = 'sum' | 'sub' | 'mul' | 'div' | null;
 
 export interface AppState {
   screen: Screen;
@@ -17,7 +17,7 @@ export interface AppState {
   selectedIndex: number;
   inputIndex: number;
   inputs: string[];
-  operation: Operation;
+  operation: Operation | null;
 }
 
 export interface KeyInput {
@@ -90,51 +90,27 @@ export const useAppInput = () => {
   }, []);
 
   const calculateAndShowResult = useCallback(
-    (operation: 'sum' | 'sub' | 'mul' | 'div') => {
-      const a = parseFloat(state.inputs[0]) || 0;
-      const b = parseFloat(state.inputs[1]) || 0;
-      if (operation === 'sum') {
+    (operation: Operation) => {
+      const a = parseInput(state.inputs[0]);
+      const b = parseInput(state.inputs[1]);
+      const output = calculate(a, b, operation);
+
+      if ('error' in output) {
         setState({
           ...state,
           screen: 'result',
-          result: a + b,
+          result: undefined,
           operation,
-          error: undefined,
+          error: output.error,
         });
-      } else if (operation === 'sub') {
+      } else {
         setState({
           ...state,
           screen: 'result',
-          result: a - b,
+          result: output.result,
           operation,
           error: undefined,
         });
-      } else if (operation === 'mul') {
-        setState({
-          ...state,
-          screen: 'result',
-          result: a * b,
-          operation,
-          error: undefined,
-        });
-      } else if (operation === 'div') {
-        if (b === 0) {
-          setState({
-            ...state,
-            screen: 'result',
-            result: undefined,
-            operation,
-            error: 'Error: division by zero',
-          });
-        } else {
-          setState({
-            ...state,
-            screen: 'result',
-            result: a / b,
-            operation,
-            error: undefined,
-          });
-        }
       }
     },
     [state]

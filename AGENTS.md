@@ -231,10 +231,36 @@ src/
 
 ## Testing
 
-This project does not currently have tests. When adding tests:
-- Use a testing framework compatible with React/Ink
-- Place tests in `__tests__/` or alongside source files
-- Run single test: use framework's CLI (e.g., `jest --testPathPattern=name`)
+### Framework
+This project uses **Vitest** for testing with **happy-dom** for DOM simulation.
+
+### Commands
+```bash
+npm run test        # Run tests in watch mode
+npm run test:run    # Run tests once
+npm run test:coverage  # Run with coverage report
+```
+
+### Test Structure
+- Tests are located in `src/utils/__tests__/` (logic tests)
+- Test files follow pattern: `*.test.ts` or `*.spec.ts`
+- Run single test: `npm run test -- --testNamePattern=pattern`
+
+### Adding New Tests
+1. Create test files in `__tests__/` directories
+2. Use pure functions when possible (avoid React/Ink dependencies)
+3. Import from `src/utils/` for logic that can be tested in isolation
+
+### Example
+```typescript
+import { calculate, parseInput } from '../calculator';
+
+describe('calculate', () => {
+  it('should sum two numbers', () => {
+    expect(calculate(2, 3, 'sum')).toEqual({ result: 5 });
+  });
+});
+```
 
 ---
 

@@ -36,6 +36,15 @@ npm run lint      # Run ESLint on src/
 npm run format    # Format code with Prettier
 ```
 
+### Testing
+```bash
+npm run test          # Run tests in watch mode
+npm run test:run      # Run tests once
+npm run test:coverage # Run with coverage report
+```
+
+Tests are located in `src/utils/__tests__/` and use Vitest with happy-dom.
+
 ### Distribution (Bun)
 ```bash
 npm run dist      # Build all binaries (Linux, Windows, macOS)

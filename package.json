@@ -21,7 +21,10 @@
     "build:linux": "bun build --compile --target=bun-linux-x64 ./dist/index.js --outfile ./dist/calculator-linux",
     "build:win": "bun build --compile --target=bun-windows-x64 ./dist/index.js --outfile ./dist/calculator.exe",
     "build:mac": "bun build --compile --target=bun-darwin-arm64 ./dist/index.js --outfile ./dist/calculator-macos",
-    "build:all": "bun run build:linux && bun run build:win && bun run build:mac"
+    "build:all": "bun run build:linux && bun run build:win && bun run build:mac",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "keywords": [],
   "license": "ISC",
@@ -33,6 +36,7 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -41,11 +45,13 @@
     "eslint": "^8.57.1",
     "eslint-plugin-react": "^4.3.0",
     "eslint-plugin-react-hooks": "^4.6.2",
+    "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
