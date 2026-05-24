@@ -12,6 +12,11 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Live result updates as you type (no need to press "continue")
 - Clean, responsive terminal UI
 
+## Screenshots
+
+<img width="478" height="258" alt="tui-calculator1" src="https://github.com/user-attachments/assets/0d3f25bf-59be-4e64-a120-3e686ea13f77" />
+<img width="478" height="258" alt="tui-calculator2" src="https://github.com/user-attachments/assets/53616c73-ee5f-4ca4-a6ff-a362b041f6c6" />
+
 ## Project Structure
 
 ```
