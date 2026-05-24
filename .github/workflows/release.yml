@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: oven-sh/setup-bun@v2
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run test:run
+
+      - run: npm run build
+
+      - run: bun build --compile --target=bun-linux-x64   ./dist/index.js --outfile ./dist/calculator-linux
+      - run: bun build --compile --target=bun-windows-x64 ./dist/index.js --outfile ./dist/calculator.exe
+      - run: bun build --compile --target=bun-darwin-arm64 ./dist/index.js --outfile ./dist/calculator-macos
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/calculator-linux
+            dist/calculator.exe
+            dist/calculator-macos
+          generate_release_notes: true
