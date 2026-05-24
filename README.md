@@ -9,6 +9,7 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - TypeScript for type safety
 - Multiple calculation modes (sum, subtract, multiply, divide)
 - Division by zero error handling
+- Live result updates as you type (no need to press "continue")
 - Clean, responsive terminal UI
 
 ## Project Structure
@@ -90,7 +91,7 @@ Run `npm run format` before committing.
 
 ### Naming Conventions
 - Files: PascalCase for components (`App.tsx`, `Calculator.tsx`)
-- Variables & Functions: camelCase (`goToMenu`, `calculateAndShowResult`)
+- Variables & Functions: camelCase (`goToMenu`, `calculateResult`)
 - Components: PascalCase (`App`, `Menu`)
 - Interfaces: PascalCase with descriptive names (`AppState`, `KeyInput`)
 - Constants: UPPER_SNAKE_CASE for true constants, camelCase for configuration objects

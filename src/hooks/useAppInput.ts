@@ -2,13 +2,7 @@ import { useInput } from 'ink';
 import { useState, useCallback } from 'react';
 import { calculate, parseInput, Operation } from '../utils/calculator';
 
-type Screen =
-  | 'menu'
-  | 'input-sum'
-  | 'input-sub'
-  | 'input-mul'
-  | 'input-div'
-  | 'result';
+type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div';
 
 export interface AppState {
   screen: Screen;
@@ -28,6 +22,22 @@ export interface KeyInput {
   backspace: boolean;
   delete: boolean;
 }
+
+const calculateResult = (
+  inputs: string[],
+  operation: Operation | null
+): Pick<AppState, 'result' | 'error'> => {
+  if (!operation || inputs[0] === '' || inputs[1] === '') {
+    return { result: undefined, error: undefined };
+  }
+  const a = parseInput(inputs[0]);
+  const b = parseInput(inputs[1]);
+  const output = calculate(a, b, operation);
+  if ('error' in output) {
+    return { result: undefined, error: output.error };
+  }
+  return { result: output.result, error: undefined };
+};
 
 export const useAppInput = () => {
   const [state, setState] = useState<AppState>({
@@ -89,33 +99,6 @@ export const useAppInput = () => {
     });
   }, []);
 
-  const calculateAndShowResult = useCallback(
-    (operation: Operation) => {
-      const a = parseInput(state.inputs[0]);
-      const b = parseInput(state.inputs[1]);
-      const output = calculate(a, b, operation);
-
-      if ('error' in output) {
-        setState({
-          ...state,
-          screen: 'result',
-          result: undefined,
-          operation,
-          error: output.error,
-        });
-      } else {
-        setState({
-          ...state,
-          screen: 'result',
-          result: output.result,
-          operation,
-          error: undefined,
-        });
-      }
-    },
-    [state]
-  );
-
   useInput((input: string, key: KeyInput) => {
     if (state.screen === 'menu') {
       if (key.upArrow) {
@@ -157,15 +140,9 @@ export const useAppInput = () => {
           setState((s: AppState) => ({ ...s, inputIndex: 1 }));
           return;
         }
-        const op =
-          state.screen === 'input-sum'
-            ? 'sum'
-            : state.screen === 'input-sub'
-              ? 'sub'
-              : state.screen === 'input-mul'
-                ? 'mul'
-                : 'div';
-        calculateAndShowResult(op);
+        if (state.inputs[0] !== '' && state.inputs[1] !== '') {
+          goToMenu();
+        }
         return;
       }
       if (
@@ -185,18 +162,24 @@ export const useAppInput = () => {
         setState((s: AppState) => {
           const newInputs = [...s.inputs];
           newInputs[s.inputIndex] += input;
-          return { ...s, inputs: newInputs };
+          return {
+            ...s,
+            inputs: newInputs,
+            ...calculateResult(newInputs, s.operation),
+          };
         });
       }
       if (key.backspace || key.delete || input === '\b' || input === '\u007f') {
         setState((s: AppState) => {
           const newInputs = [...s.inputs];
           newInputs[s.inputIndex] = newInputs[s.inputIndex].slice(0, -1);
-          return { ...s, inputs: newInputs };
+          return {
+            ...s,
+            inputs: newInputs,
+            ...calculateResult(newInputs, s.operation),
+          };
         });
       }
-    } else if (state.screen === 'result') {
-      goToMenu();
     }
   });
 
