@@ -77,10 +77,25 @@ const App: React.FC = () => {
           {state.inputs[1] || '(empty)'}
         </Text>
       </Box>
+      {(state.result !== undefined || state.error) && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text bold>
+            {' '}
+            {state.inputs[0]} {getOperationSymbol()} {state.inputs[1]} ={' '}
+            {state.error ? (
+              <Text bold color="red">
+                {state.error}
+              </Text>
+            ) : (
+              <Text bold color="green">
+                {state.result}
+              </Text>
+            )}
+          </Text>
+        </Box>
+      )}
       <Text> </Text>
-      <Text dimColor>
-        Type numbers, Tab/↑/↓ to switch, Enter to continue, Esc to go back
-      </Text>
+      <Text dimColor>Type numbers, ↑/↓ to switch input, Esc to go back</Text>
     </Box>
   );
 
@@ -92,37 +107,6 @@ const App: React.FC = () => {
     return '';
   };
 
-  const renderResult = () => (
-    <Box
-      flexDirection="column"
-      borderStyle="round"
-      borderColor="green"
-      padding={1}
-    >
-      <Text bold color="green">
-        Result
-      </Text>
-      <Text> </Text>
-      <Text bold>
-        {' '}
-        {state.inputs[0]} {getOperationSymbol()} {state.inputs[1]} ={' '}
-      </Text>
-      {state.error ? (
-        <Text bold color="red">
-          {' '}
-          {state.error}
-        </Text>
-      ) : (
-        <Text bold color="green">
-          {' '}
-          {state.result}
-        </Text>
-      )}
-      <Text> </Text>
-      <Text dimColor>Press any key to continue...</Text>
-    </Box>
-  );
-
   return (
     <Box flexDirection="column" padding={1}>
       {state.screen === 'menu' && renderMenu()}
@@ -130,7 +114,6 @@ const App: React.FC = () => {
       {state.screen === 'input-sub' && renderInput('DECREASE')}
       {state.screen === 'input-mul' && renderInput('MULTIPLY')}
       {state.screen === 'input-div' && renderInput('DIVIDE')}
-      {state.screen === 'result' && renderResult()}
     </Box>
   );
 };
