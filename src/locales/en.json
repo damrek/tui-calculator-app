@@ -1,0 +1,32 @@
+{
+  "menu": {
+    "title": "Calculator Menu",
+    "sum": "Sum two numbers",
+    "sub": "Decrease two numbers",
+    "mul": "Multiply two numbers",
+    "div": "Divide two numbers",
+    "exit": "Exit",
+    "navHelp": "Use ↑/↓ to navigate, Enter to select"
+  },
+  "input": {
+    "sumTitle": "SUM",
+    "subTitle": "DECREASE",
+    "mulTitle": "MULTIPLY",
+    "divTitle": "DIVIDE",
+    "firstNumber": "First number",
+    "secondNumber": "Second number",
+    "switchHelp": "Type numbers, ↑/↓ to switch input, Esc to go back",
+    "result": "{a} {op} {b} = {result}",
+    "errorDivZero": "Error: division by zero"
+  },
+  "languageSelector": {
+    "title": "Select Language",
+    "current": "Current: {lang}",
+    "help": "Use ↑/↓ to select, Enter to confirm, Esc to cancel",
+    "languages": {
+      "en": "English",
+      "es": "Español",
+      "fr": "Français"
+    }
+  }
+}

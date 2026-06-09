@@ -1,0 +1,32 @@
+{
+  "menu": {
+    "title": "Menú Calculadora",
+    "sum": "Sumar dos números",
+    "sub": "Restar dos números",
+    "mul": "Multiplicar dos números",
+    "div": "Dividir dos números",
+    "exit": "Salir",
+    "navHelp": "Use ↑/↓ para navegar, Enter para seleccionar"
+  },
+  "input": {
+    "sumTitle": "SUMA",
+    "subTitle": "RESTA",
+    "mulTitle": "MULTIPLICACIÓN",
+    "divTitle": "DIVISIÓN",
+    "firstNumber": "Primer número",
+    "secondNumber": "Segundo número",
+    "switchHelp": "Escriba números, ↑/↓ para cambiar, Esc para volver",
+    "result": "{a} {op} {b} = {result}",
+    "errorDivZero": "Error: división por cero"
+  },
+  "languageSelector": {
+    "title": "Seleccionar Idioma",
+    "current": "Actual: {lang}",
+    "help": "Use ↑/↓ para seleccionar, Enter para confirmar, Esc para cancelar",
+    "languages": {
+      "en": "English",
+      "es": "Español",
+      "fr": "Francés"
+    }
+  }
+}
