@@ -11,6 +11,20 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Division by zero error handling
 - Live result updates as you type (no need to press "continue")
 - Clean, responsive terminal UI
+- Multi-language support (English, Español, Français) with persistent preference
+
+## Language Support
+
+The calculator supports multiple languages:
+- **English** (default)
+- **Español** (Spanish)
+- **Français** (French)
+
+### Switching Languages
+Press **Ctrl+L** anywhere in the app to open the language selector modal.
+Use ↑/↓ to choose a language, Enter to confirm, Esc to cancel.
+
+Your preference is saved to `~/.calculator/config.json` and persists across sessions.
 
 ## Screenshots
 
@@ -23,8 +37,19 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 src/
 ├── App.tsx              # Main application component (rendering only)
 ├── index.tsx            # Entry point (renders App)
-└── hooks/
-    └── useAppInput.ts   # Custom hook with state and input handling
+├── components/
+│   └── LanguageSelector.tsx  # Language selector modal overlay
+├── hooks/
+│   ├── useAppInput.ts   # Custom hook with state and input handling
+│   └── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+├── locales/
+│   ├── index.ts         # Translation loader and t() helper
+│   ├── en.json          # English translations
+│   ├── es.json          # Spanish translations
+│   └── fr.json          # French translations
+└── utils/
+    ├── calculator.ts    # Calculation logic
+    └── config.ts        # Config file read/write (~/.calculator/config.json)
 ```
 
 ## Commands

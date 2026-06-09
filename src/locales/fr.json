@@ -1,0 +1,32 @@
+{
+  "menu": {
+    "title": "Menu Calculatrice",
+    "sum": "Additionner deux nombres",
+    "sub": "Soustraire deux nombres",
+    "mul": "Multiplier deux nombres",
+    "div": "Diviser deux nombres",
+    "exit": "Quitter",
+    "navHelp": "Utilisez ↑/↓ pour naviguer, Entrée pour sélectionner"
+  },
+  "input": {
+    "sumTitle": "ADDITION",
+    "subTitle": "SOUSTRACTION",
+    "mulTitle": "MULTIPLICATION",
+    "divTitle": "DIVISION",
+    "firstNumber": "Premier nombre",
+    "secondNumber": "Deuxième nombre",
+    "switchHelp": "Entrez des nombres, ↑/↓ pour basculer, Echap pour revenir",
+    "result": "{a} {op} {b} = {result}",
+    "errorDivZero": "Erreur: division par zéro"
+  },
+  "languageSelector": {
+    "title": "Sélectionner la langue",
+    "current": "Actuelle: {lang}",
+    "help": "Utilisez ↑/↓ pour sélectionner, Entrée pour confirmer, Echap pour annuler",
+    "languages": {
+      "en": "Anglais",
+      "es": "Espagnol",
+      "fr": "Français"
+    }
+  }
+}
