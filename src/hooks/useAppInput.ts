@@ -5,6 +5,13 @@ import { t } from '../locales';
 
 type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div';
 
+export interface HistoryEntry {
+  a: number;
+  b: number;
+  operation: Operation;
+  result: number;
+}
+
 export interface AppState {
   screen: Screen;
   result?: number;
@@ -13,7 +20,20 @@ export interface AppState {
   inputIndex: number;
   inputs: string[];
   operation: Operation | null;
+  history: HistoryEntry[];
 }
+
+const MAX_HISTORY = 3;
+
+export const isValidInput = (current: string, newChar: string): boolean => {
+  if (newChar === '.') {
+    return !current.includes('.');
+  }
+  if (newChar === '-') {
+    return current.length === 0;
+  }
+  return true;
+};
 
 export interface KeyInput {
   upArrow: boolean;
@@ -48,57 +68,70 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     inputIndex: 0,
     inputs: ['', ''],
     operation: null,
+    history: [],
   });
 
   const goToMenu = useCallback(() => {
-    setState({
+    setState((s: AppState) => ({
       screen: 'menu',
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
       operation: null,
       error: undefined,
-    });
+      history: s.history,
+    }));
   }, []);
 
   const goToInputSum = useCallback(() => {
-    setState({
+    setState((s: AppState) => ({
       screen: 'input-sum',
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
       operation: 'sum',
-    });
+      history: s.history,
+    }));
   }, []);
 
   const goToInputSub = useCallback(() => {
-    setState({
+    setState((s: AppState) => ({
       screen: 'input-sub',
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
       operation: 'sub',
-    });
+      history: s.history,
+    }));
   }, []);
 
   const goToInputMul = useCallback(() => {
-    setState({
+    setState((s: AppState) => ({
       screen: 'input-mul',
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
       operation: 'mul',
-    });
+      history: s.history,
+    }));
   }, []);
 
   const goToInputDiv = useCallback(() => {
-    setState({
+    setState((s: AppState) => ({
       screen: 'input-div',
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
       operation: 'div',
-    });
+      history: s.history,
+    }));
+  }, []);
+
+  const addToHistory = useCallback((entry: HistoryEntry) => {
+    setState((s: AppState) => ({
+      ...s,
+      history: [...s.history, entry].slice(-MAX_HISTORY),
+    }));
   }, []);
 
   useInput(
@@ -144,6 +177,14 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
             return;
           }
           if (state.inputs[0] !== '' && state.inputs[1] !== '') {
+            if (state.operation && state.result !== undefined && !state.error) {
+              addToHistory({
+                a: parseInput(state.inputs[0]),
+                b: parseInput(state.inputs[1]),
+                operation: state.operation,
+                result: state.result,
+              });
+            }
             goToMenu();
           }
           return;
@@ -162,6 +203,9 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           input === '.' ||
           input === '-'
         ) {
+          if (!isValidInput(state.inputs[state.inputIndex], input)) {
+            return;
+          }
           setState((s: AppState) => {
             const newInputs = [...s.inputs];
             newInputs[s.inputIndex] += input;

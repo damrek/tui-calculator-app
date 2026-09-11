@@ -17,6 +17,7 @@
     "secondNumber": "Segundo número",
     "switchHelp": "Escriba números, ↑/↓ para cambiar, Esc para volver",
     "result": "{a} {op} {b} = {result}",
+    "historyLabel": "Historial:",
     "errorDivZero": "Error: división por cero"
   },
   "languageSelector": {

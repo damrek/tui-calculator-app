@@ -4,6 +4,7 @@ import { useAppInput } from './hooks/useAppInput';
 import { useLanguage } from './hooks/useLanguage';
 import { LanguageSelector } from './components/LanguageSelector';
 import { t } from './locales';
+import { Operation } from './utils/calculator';
 
 const App: React.FC = () => {
   const { showSelector, selectorIndex } = useLanguage();
@@ -24,11 +25,11 @@ const App: React.FC = () => {
     }
   };
 
-  const getOperationSymbol = () => {
-    if (state.operation === 'sum') return '+';
-    if (state.operation === 'sub') return '-';
-    if (state.operation === 'mul') return '*';
-    if (state.operation === 'div') return '/';
+  const getOperationSymbol = (operation?: Operation | null) => {
+    if (operation === 'sum') return '+';
+    if (operation === 'sub') return '-';
+    if (operation === 'mul') return '*';
+    if (operation === 'div') return '/';
     return '';
   };
 
@@ -108,7 +109,8 @@ const App: React.FC = () => {
         <Box flexDirection="column" marginTop={1}>
           <Text bold>
             {' '}
-            {state.inputs[0]} {getOperationSymbol()} {state.inputs[1]} ={' '}
+            {state.inputs[0]} {getOperationSymbol(state.operation)}{' '}
+            {state.inputs[1]} ={' '}
             {state.error ? (
               <Text bold color="red">
                 {state.error}
@@ -119,6 +121,18 @@ const App: React.FC = () => {
               </Text>
             )}
           </Text>
+        </Box>
+      )}
+      {state.history.length > 0 && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text dimColor>{t('input.historyLabel')}</Text>
+          {state.history.slice(-3).map((entry, index) => (
+            <Text key={index} dimColor>
+              {' '}
+              {entry.a} {getOperationSymbol(entry.operation)} {entry.b} ={' '}
+              {entry.result}
+            </Text>
+          ))}
         </Box>
       )}
       <Text> </Text>
