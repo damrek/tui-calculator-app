@@ -5,6 +5,7 @@
     "sub": "Soustraire deux nombres",
     "mul": "Multiplier deux nombres",
     "div": "Diviser deux nombres",
+    "expression": "Expression libre",
     "exit": "Quitter",
     "navHelp": "Utilisez ↑/↓ pour naviguer, Entrée pour sélectionner"
   },
@@ -16,9 +17,13 @@
     "firstNumber": "Premier nombre",
     "secondNumber": "Deuxième nombre",
     "switchHelp": "Entrez des nombres, ↑/↓ pour basculer, Echap pour revenir",
+    "expressionTitle": "EXPRESSION LIBRE",
+    "expressionLabel": "Expression",
+    "expressionHelp": "Saisissez une expression mathématique (ex. 3 + 5 * 2), Entrée pour ajouter, Echap pour revenir",
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "Historique:",
-    "errorDivZero": "Erreur: division par zéro"
+    "errorDivZero": "Erreur: division par zéro",
+    "errorInvalidExpression": "Erreur: expression invalide"
   },
   "languageSelector": {
     "title": "Sélectionner la langue",

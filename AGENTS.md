@@ -8,7 +8,7 @@ This is a **TUI (Terminal User Interface) Calculator App** built with:
 - **Framework**: Ink (React for CLIs)
 - **Language**: TypeScript
 - **Target**: Node.js terminal applications
-- **Operations**: sum, subtract, multiply, divide
+- **Operations**: sum, subtract, multiply, divide, plus a free expression mode (`3 + 5 * 2`) backed by `expr-eval`
 
 ---
 
@@ -112,7 +112,7 @@ interface AppState {
   error?: string;
 }
 
-type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div' | 'result';
+type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div' | 'input-expression';
 ```
 
 ### Avoid `any`
@@ -223,8 +223,20 @@ When the user performs a division by zero, the app sets `error: 'Error: division
 src/
 ├── App.tsx              # Main application component (rendering only)
 ├── index.tsx            # Entry point (renders App)
-└── hooks/
-    └── useAppInput.ts   # Custom hook with state and input handling
+├── components/
+│   └── LanguageSelector.tsx  # Language selector modal overlay
+├── hooks/
+│   ├── useAppInput.ts   # Custom hook with state and input handling
+│   └── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+├── locales/
+│   ├── index.ts         # Translation loader and t() helper
+│   ├── en.json          # English translations
+│   ├── es.json          # Spanish translations
+│   └── fr.json          # French translations
+└── utils/
+    ├── calculator.ts    # Calculation logic (calculate, parseInput, Operation)
+    ├── expression.ts    # Expression evaluation (expr-eval) and input validation
+    └── config.ts        # Config file read/write (~/.calculator/config.json)
 ```
 
 ---
@@ -242,7 +254,8 @@ npm run test:coverage  # Run with coverage report
 ```
 
 ### Test Structure
-- Tests are located in `src/utils/__tests__/` (logic tests)
+- Logic tests are located in `src/utils/__tests__/` (calculator, expression, validation, history, config)
+- Hook and component tests live in `src/hooks/__tests__/` and `src/components/__tests__/`; locale tests in `src/locales/__tests__/`
 - Test files follow pattern: `*.test.ts` or `*.spec.ts`
 - Run single test: `npm run test -- --testNamePattern=pattern`
 
@@ -250,6 +263,7 @@ npm run test:coverage  # Run with coverage report
 1. Create test files in `__tests__/` directories
 2. Use pure functions when possible (avoid React/Ink dependencies)
 3. Import from `src/utils/` for logic that can be tested in isolation
+4. For hooks using Ink's `useInput`, `vi.mock('ink', ...)` to capture the input handler; for config I/O, `vi.mock('fs', ...)`
 
 ### Example
 ```typescript
@@ -282,7 +296,7 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 - Current development: Node 24
 
 ### Dependencies
-- **Production**: ink, react, react-dom, react-devtools-core
+- **Production**: ink, react, react-dom, react-devtools-core, expr-eval
 - **Dev**: typescript, eslint, prettier, husky, lint-staged
 
 ---
