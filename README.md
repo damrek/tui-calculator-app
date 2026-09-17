@@ -8,6 +8,7 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Built with React-like components using Ink
 - TypeScript for type safety
 - Multiple calculation modes (sum, subtract, multiply, divide)
+- Free expression mode (e.g. `3 + 5 * 2` with parentheses) with live result
 - Division by zero error handling
 - Live result updates as you type (no need to press "continue")
 - Smart input validation (input masking) — prevents invalid entries like `1.2.3`, `5-`, or double signs
@@ -51,7 +52,9 @@ src/
 │   └── fr.json          # French translations
 └── utils/
     ├── calculator.ts    # Calculation logic
-    └── config.ts        # Config file read/write (~/.calculator/config.json)
+    ├── expression.ts    # Free expression evaluation (expr-eval)
+    ├── config.ts        # Config file read/write (~/.calculator/config.json)
+    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config)
 ```
 
 ## Commands
@@ -149,6 +152,7 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 - react
 - react-dom
 - react-devtools-core
+- expr-eval
 
 ### Dev Dependencies
 - typescript

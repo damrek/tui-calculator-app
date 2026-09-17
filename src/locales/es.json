@@ -5,6 +5,7 @@
     "sub": "Restar dos números",
     "mul": "Multiplicar dos números",
     "div": "Dividir dos números",
+    "expression": "Expresión libre",
     "exit": "Salir",
     "navHelp": "Use ↑/↓ para navegar, Enter para seleccionar"
   },
@@ -16,9 +17,13 @@
     "firstNumber": "Primer número",
     "secondNumber": "Segundo número",
     "switchHelp": "Escriba números, ↑/↓ para cambiar, Esc para volver",
+    "expressionTitle": "EXPRESIÓN LIBRE",
+    "expressionLabel": "Expresión",
+    "expressionHelp": "Escriba una expresión matemática (ej. 3 + 5 * 2), Enter para agregar, Esc para volver",
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "Historial:",
-    "errorDivZero": "Error: división por cero"
+    "errorDivZero": "Error: división por cero",
+    "errorInvalidExpression": "Error: expresión inválida"
   },
   "languageSelector": {
     "title": "Seleccionar Idioma",

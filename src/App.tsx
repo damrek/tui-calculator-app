@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import { useAppInput } from './hooks/useAppInput';
+import { useAppInput, HistoryEntry } from './hooks/useAppInput';
 import { useLanguage } from './hooks/useLanguage';
 import { LanguageSelector } from './components/LanguageSelector';
 import { t } from './locales';
@@ -32,6 +32,20 @@ const App: React.FC = () => {
     if (operation === 'div') return '/';
     return '';
   };
+
+  const renderHistory = (history: HistoryEntry[]) => (
+    <Box flexDirection="column" marginTop={1}>
+      <Text dimColor>{t('input.historyLabel')}</Text>
+      {history.slice(-3).map((entry, index) => (
+        <Text key={index} dimColor>
+          {' '}
+          {entry.kind === 'expression'
+            ? `${entry.expression} = ${entry.result}`
+            : `${entry.a} ${getOperationSymbol(entry.operation)} ${entry.b} = ${entry.result}`}
+        </Text>
+      ))}
+    </Box>
+  );
 
   const renderMenu = () => (
     <Box
@@ -73,6 +87,13 @@ const App: React.FC = () => {
         <Text> {t('menu.div')}</Text>
       )}
       {state.selectedIndex === 4 ? (
+        <Text bold color="green">
+          ▶ {t('menu.expression')}
+        </Text>
+      ) : (
+        <Text> {t('menu.expression')}</Text>
+      )}
+      {state.selectedIndex === 5 ? (
         <Text bold color="red">
           ▶ {t('menu.exit')}
         </Text>
@@ -123,20 +144,46 @@ const App: React.FC = () => {
           </Text>
         </Box>
       )}
-      {state.history.length > 0 && (
-        <Box flexDirection="column" marginTop={1}>
-          <Text dimColor>{t('input.historyLabel')}</Text>
-          {state.history.slice(-3).map((entry, index) => (
-            <Text key={index} dimColor>
-              {' '}
-              {entry.a} {getOperationSymbol(entry.operation)} {entry.b} ={' '}
-              {entry.result}
-            </Text>
-          ))}
-        </Box>
-      )}
+      {state.history.length > 0 && renderHistory(state.history)}
       <Text> </Text>
       <Text dimColor>{t('input.switchHelp')}</Text>
+    </Box>
+  );
+
+  const renderExpressionInput = () => (
+    <Box
+      flexDirection="column"
+      borderStyle="round"
+      borderColor="cyan"
+      padding={1}
+    >
+      <Text bold color="cyan">
+        {t('input.expressionTitle')}
+      </Text>
+      <Text> </Text>
+      <Text>
+        ▶ {t('input.expressionLabel')}: {state.expressionInput || '(empty)'}
+      </Text>
+      {(state.result !== undefined || state.error) && (
+        <Box flexDirection="column" marginTop={1}>
+          <Text bold>
+            {' '}
+            {state.expressionInput} ={' '}
+            {state.error ? (
+              <Text bold color="red">
+                {state.error}
+              </Text>
+            ) : (
+              <Text bold color="green">
+                {state.result}
+              </Text>
+            )}
+          </Text>
+        </Box>
+      )}
+      {state.history.length > 0 && renderHistory(state.history)}
+      <Text> </Text>
+      <Text dimColor>{t('input.expressionHelp')}</Text>
     </Box>
   );
 
@@ -147,6 +194,7 @@ const App: React.FC = () => {
       {state.screen === 'input-sub' && renderInput()}
       {state.screen === 'input-mul' && renderInput()}
       {state.screen === 'input-div' && renderInput()}
+      {state.screen === 'input-expression' && renderExpressionInput()}
       {showSelector && (
         <Box alignItems="center" flexDirection="column" marginTop={1}>
           <LanguageSelector selectorIndex={selectorIndex} />

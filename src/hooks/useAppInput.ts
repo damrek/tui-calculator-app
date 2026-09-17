@@ -1,16 +1,29 @@
 import { useInput } from 'ink';
 import { useState, useCallback } from 'react';
 import { calculate, parseInput, Operation } from '../utils/calculator';
+import {
+  evaluateExpression,
+  isValidExpressionInput,
+} from '../utils/expression';
 import { t } from '../locales';
 
-type Screen = 'menu' | 'input-sum' | 'input-sub' | 'input-mul' | 'input-div';
+type Screen =
+  | 'menu'
+  | 'input-sum'
+  | 'input-sub'
+  | 'input-mul'
+  | 'input-div'
+  | 'input-expression';
 
-export interface HistoryEntry {
-  a: number;
-  b: number;
-  operation: Operation;
-  result: number;
-}
+export type HistoryEntry =
+  | {
+      kind: 'calculation';
+      a: number;
+      b: number;
+      operation: Operation;
+      result: number;
+    }
+  | { kind: 'expression'; expression: string; result: number };
 
 export interface AppState {
   screen: Screen;
@@ -19,11 +32,13 @@ export interface AppState {
   selectedIndex: number;
   inputIndex: number;
   inputs: string[];
+  expressionInput: string;
   operation: Operation | null;
   history: HistoryEntry[];
 }
 
 const MAX_HISTORY = 3;
+const MENU_OPTIONS = 6;
 
 export const isValidInput = (current: string, newChar: string): boolean => {
   if (newChar === '.') {
@@ -60,6 +75,22 @@ const calculateResult = (
   return { result: output.result, error: undefined };
 };
 
+const calculateExpressionResult = (
+  expression: string
+): Pick<AppState, 'result' | 'error'> => {
+  if (expression.trim() === '') {
+    return { result: undefined, error: undefined };
+  }
+  const output = evaluateExpression(expression);
+  if ('error' in output) {
+    if (output.error === 'Error: division by zero') {
+      return { result: undefined, error: t('input.errorDivZero') };
+    }
+    return { result: undefined, error: t('input.errorInvalidExpression') };
+  }
+  return { result: output.result, error: undefined };
+};
+
 export const useAppInput = (options?: { inputEnabled?: boolean }) => {
   const isActive = options?.inputEnabled ?? true;
   const [state, setState] = useState<AppState>({
@@ -67,6 +98,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     selectedIndex: 0,
     inputIndex: 0,
     inputs: ['', ''],
+    expressionInput: '',
     operation: null,
     history: [],
   });
@@ -77,6 +109,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
+      expressionInput: '',
       operation: null,
       error: undefined,
       history: s.history,
@@ -89,6 +122,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
+      expressionInput: '',
       operation: 'sum',
       history: s.history,
     }));
@@ -100,6 +134,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
+      expressionInput: '',
       operation: 'sub',
       history: s.history,
     }));
@@ -111,6 +146,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
+      expressionInput: '',
       operation: 'mul',
       history: s.history,
     }));
@@ -122,7 +158,21 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       selectedIndex: 0,
       inputIndex: 0,
       inputs: ['', ''],
+      expressionInput: '',
       operation: 'div',
+      history: s.history,
+    }));
+  }, []);
+
+  const goToInputExpression = useCallback(() => {
+    setState((s: AppState) => ({
+      screen: 'input-expression',
+      selectedIndex: 0,
+      inputIndex: 0,
+      inputs: ['', ''],
+      expressionInput: '',
+      operation: null,
+      error: undefined,
       history: s.history,
     }));
   }, []);
@@ -134,32 +184,37 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     }));
   }, []);
 
+  const isBinaryInputScreen = (screen: Screen): boolean => {
+    return (
+      screen === 'input-sum' ||
+      screen === 'input-sub' ||
+      screen === 'input-mul' ||
+      screen === 'input-div'
+    );
+  };
+
   useInput(
     (input: string, key: KeyInput) => {
       if (state.screen === 'menu') {
         if (key.upArrow) {
           setState((s: AppState) => ({
             ...s,
-            selectedIndex: (s.selectedIndex + 4) % 5,
+            selectedIndex: (s.selectedIndex + MENU_OPTIONS - 1) % MENU_OPTIONS,
           }));
         } else if (key.downArrow) {
           setState((s: AppState) => ({
             ...s,
-            selectedIndex: (s.selectedIndex + 1) % 5,
+            selectedIndex: (s.selectedIndex + 1) % MENU_OPTIONS,
           }));
         } else if (key.return) {
           if (state.selectedIndex === 0) goToInputSum();
           else if (state.selectedIndex === 1) goToInputSub();
           else if (state.selectedIndex === 2) goToInputMul();
           else if (state.selectedIndex === 3) goToInputDiv();
+          else if (state.selectedIndex === 4) goToInputExpression();
           else process.exit(0);
         }
-      } else if (
-        state.screen === 'input-sum' ||
-        state.screen === 'input-sub' ||
-        state.screen === 'input-mul' ||
-        state.screen === 'input-div'
-      ) {
+      } else if (isBinaryInputScreen(state.screen)) {
         if (key.escape) {
           goToMenu();
           return;
@@ -179,6 +234,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           if (state.inputs[0] !== '' && state.inputs[1] !== '') {
             if (state.operation && state.result !== undefined && !state.error) {
               addToHistory({
+                kind: 'calculation',
                 a: parseInput(state.inputs[0]),
                 b: parseInput(state.inputs[1]),
                 operation: state.operation,
@@ -232,6 +288,51 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
             };
           });
         }
+      } else if (state.screen === 'input-expression') {
+        if (key.escape) {
+          goToMenu();
+          return;
+        }
+        if (key.return) {
+          if (
+            state.expressionInput.trim() !== '' &&
+            state.result !== undefined &&
+            !state.error
+          ) {
+            addToHistory({
+              kind: 'expression',
+              expression: state.expressionInput.trim(),
+              result: state.result,
+            });
+          }
+          goToMenu();
+          return;
+        }
+        if (isValidExpressionInput(state.expressionInput, input)) {
+          setState((s: AppState) => {
+            const newExpression = s.expressionInput + input;
+            return {
+              ...s,
+              expressionInput: newExpression,
+              ...calculateExpressionResult(newExpression),
+            };
+          });
+        }
+        if (
+          key.backspace ||
+          key.delete ||
+          input === '\b' ||
+          input === '\u007f'
+        ) {
+          setState((s: AppState) => {
+            const newExpression = s.expressionInput.slice(0, -1);
+            return {
+              ...s,
+              expressionInput: newExpression,
+              ...calculateExpressionResult(newExpression),
+            };
+          });
+        }
       }
     },
     { isActive }
@@ -244,5 +345,6 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     goToInputSub,
     goToInputMul,
     goToInputDiv,
+    goToInputExpression,
   };
 };

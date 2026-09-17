@@ -5,6 +5,7 @@
     "sub": "Decrease two numbers",
     "mul": "Multiply two numbers",
     "div": "Divide two numbers",
+    "expression": "Free expression",
     "exit": "Exit",
     "navHelp": "Use ↑/↓ to navigate, Enter to select"
   },
@@ -16,9 +17,13 @@
     "firstNumber": "First number",
     "secondNumber": "Second number",
     "switchHelp": "Type numbers, ↑/↓ to switch input, Esc to go back",
+    "expressionTitle": "FREE EXPRESSION",
+    "expressionLabel": "Expression",
+    "expressionHelp": "Type a math expression (e.g. 3 + 5 * 2), Enter to add, Esc to go back",
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "History:",
-    "errorDivZero": "Error: division by zero"
+    "errorDivZero": "Error: division by zero",
+    "errorInvalidExpression": "Error: invalid expression"
   },
   "languageSelector": {
     "title": "Select Language",
