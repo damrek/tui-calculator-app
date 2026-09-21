@@ -23,7 +23,10 @@
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "Historique:",
     "errorDivZero": "Erreur: division par zéro",
-    "errorInvalidExpression": "Erreur: expression invalide"
+    "errorInvalidExpression": "Erreur: expression invalide",
+    "copyHint": "Ctrl+Y pour copier le résultat",
+    "copySuccess": "Copié dans le presse-papiers !",
+    "copyError": "Échec de la copie"
   },
   "languageSelector": {
     "title": "Sélectionner la langue",

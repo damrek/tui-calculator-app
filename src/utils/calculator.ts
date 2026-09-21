@@ -1,5 +1,22 @@
 export type Operation = 'sum' | 'sub' | 'mul' | 'div';
 
+export const getOperationSymbol = (
+  operation: Operation | null | undefined
+): string => {
+  switch (operation) {
+    case 'sum':
+      return '+';
+    case 'sub':
+      return '-';
+    case 'mul':
+      return '*';
+    case 'div':
+      return '/';
+    default:
+      return '';
+  }
+};
+
 export interface CalculateResult {
   result: number;
 }
