@@ -13,6 +13,7 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Live result updates as you type (no need to press "continue")
 - Smart input validation (input masking) — prevents invalid entries like `1.2.3`, `5-`, or double signs
 - Recent calculation history — last 3 operations tracked in-memory and shown inline below the result
+- Copy result to clipboard with **Ctrl+Y** (copies the full expression, e.g. `5 + 3 = 8`)
 - Clean, responsive terminal UI
 - Multi-language support (English, Español, Français) with persistent preference
 
@@ -28,6 +29,8 @@ Press **Ctrl+L** anywhere in the app to open the language selector modal.
 Use ↑/↓ to choose a language, Enter to confirm, Esc to cancel.
 
 Your preference is saved to `~/.calculator/config.json` and persists across sessions.
+
+> **Note**: On Linux, copying to clipboard requires `xclip`, `xsel`, or `wl-copy` to be installed. If missing, the app shows a "Copy failed" notice instead of crashing.
 
 ## Screenshots
 
@@ -54,7 +57,8 @@ src/
     ├── calculator.ts    # Calculation logic
     ├── expression.ts    # Free expression evaluation (expr-eval)
     ├── config.ts        # Config file read/write (~/.calculator/config.json)
-    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config)
+    ├── clipboard.ts     # Clipboard wrapper (ClipboardY)
+    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config, clipboard)
 ```
 
 ## Commands
@@ -153,6 +157,7 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 - react-dom
 - react-devtools-core
 - expr-eval
+- clipboardy
 
 ### Dev Dependencies
 - typescript

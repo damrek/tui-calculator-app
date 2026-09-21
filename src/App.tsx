@@ -4,7 +4,7 @@ import { useAppInput, HistoryEntry } from './hooks/useAppInput';
 import { useLanguage } from './hooks/useLanguage';
 import { LanguageSelector } from './components/LanguageSelector';
 import { t } from './locales';
-import { Operation } from './utils/calculator';
+import { getOperationSymbol } from './utils/calculator';
 
 const App: React.FC = () => {
   const { showSelector, selectorIndex } = useLanguage();
@@ -25,13 +25,14 @@ const App: React.FC = () => {
     }
   };
 
-  const getOperationSymbol = (operation?: Operation | null) => {
-    if (operation === 'sum') return '+';
-    if (operation === 'sub') return '-';
-    if (operation === 'mul') return '*';
-    if (operation === 'div') return '/';
-    return '';
-  };
+  const renderCopyFeedback = () =>
+    state.copyFeedback !== null && (
+      <Text bold color={state.copyFeedback === 'copied' ? 'green' : 'yellow'}>
+        {state.copyFeedback === 'copied'
+          ? ` ${t('input.copySuccess')}`
+          : ` ${t('input.copyError')}`}
+      </Text>
+    );
 
   const renderHistory = (history: HistoryEntry[]) => (
     <Box flexDirection="column" marginTop={1}>
@@ -142,11 +143,13 @@ const App: React.FC = () => {
               </Text>
             )}
           </Text>
+          {renderCopyFeedback()}
         </Box>
       )}
       {state.history.length > 0 && renderHistory(state.history)}
       <Text> </Text>
       <Text dimColor>{t('input.switchHelp')}</Text>
+      <Text dimColor>{t('input.copyHint')}</Text>
     </Box>
   );
 
@@ -179,11 +182,13 @@ const App: React.FC = () => {
               </Text>
             )}
           </Text>
+          {renderCopyFeedback()}
         </Box>
       )}
       {state.history.length > 0 && renderHistory(state.history)}
       <Text> </Text>
       <Text dimColor>{t('input.expressionHelp')}</Text>
+      <Text dimColor>{t('input.copyHint')}</Text>
     </Box>
   );
 

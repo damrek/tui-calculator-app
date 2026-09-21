@@ -1,10 +1,16 @@
 import { useInput } from 'ink';
-import { useState, useCallback } from 'react';
-import { calculate, parseInput, Operation } from '../utils/calculator';
+import { useState, useCallback, useEffect } from 'react';
+import {
+  calculate,
+  parseInput,
+  Operation,
+  getOperationSymbol,
+} from '../utils/calculator';
 import {
   evaluateExpression,
   isValidExpressionInput,
 } from '../utils/expression';
+import { copyToClipboard } from '../utils/clipboard';
 import { t } from '../locales';
 
 type Screen =
@@ -35,10 +41,12 @@ export interface AppState {
   expressionInput: string;
   operation: Operation | null;
   history: HistoryEntry[];
+  copyFeedback: 'copied' | 'copy-failed' | null;
 }
 
 const MAX_HISTORY = 3;
 const MENU_OPTIONS = 6;
+const COPY_FEEDBACK_TIMEOUT = 1500;
 
 export const isValidInput = (current: string, newChar: string): boolean => {
   if (newChar === '.') {
@@ -57,6 +65,7 @@ export interface KeyInput {
   escape: boolean;
   backspace: boolean;
   delete: boolean;
+  ctrl: boolean;
 }
 
 const calculateResult = (
@@ -101,6 +110,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     expressionInput: '',
     operation: null,
     history: [],
+    copyFeedback: null,
   });
 
   const goToMenu = useCallback(() => {
@@ -113,6 +123,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       operation: null,
       error: undefined,
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -125,6 +136,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionInput: '',
       operation: 'sum',
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -137,6 +149,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionInput: '',
       operation: 'sub',
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -149,6 +162,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionInput: '',
       operation: 'mul',
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -161,6 +175,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionInput: '',
       operation: 'div',
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -174,6 +189,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       operation: null,
       error: undefined,
       history: s.history,
+      copyFeedback: null,
     }));
   }, []);
 
@@ -183,6 +199,41 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       history: [...s.history, entry].slice(-MAX_HISTORY),
     }));
   }, []);
+
+  const handleCopyResult = (): void => {
+    if (state.result === undefined || state.error) {
+      return;
+    }
+    let text: string | null = null;
+    if (state.screen === 'input-expression') {
+      text = `${state.expressionInput.trim()} = ${state.result}`;
+    } else if (state.operation) {
+      text = `${state.inputs[0]} ${getOperationSymbol(state.operation)} ${
+        state.inputs[1]
+      } = ${state.result}`;
+    }
+    if (text === null) {
+      return;
+    }
+    void copyToClipboard(text).then((ok) => {
+      setState((s: AppState) => ({
+        ...s,
+        copyFeedback: ok ? 'copied' : 'copy-failed',
+      }));
+    });
+  };
+
+  useEffect(() => {
+    if (state.copyFeedback === null) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setState((s: AppState) =>
+        s.copyFeedback === null ? s : { ...s, copyFeedback: null }
+      );
+    }, COPY_FEEDBACK_TIMEOUT);
+    return () => clearTimeout(timer);
+  }, [state.copyFeedback]);
 
   const isBinaryInputScreen = (screen: Screen): boolean => {
     return (
@@ -217,6 +268,10 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       } else if (isBinaryInputScreen(state.screen)) {
         if (key.escape) {
           goToMenu();
+          return;
+        }
+        if (key.ctrl && input === 'y') {
+          handleCopyResult();
           return;
         }
         if (key.upArrow || key.downArrow) {
@@ -291,6 +346,10 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       } else if (state.screen === 'input-expression') {
         if (key.escape) {
           goToMenu();
+          return;
+        }
+        if (key.ctrl && input === 'y') {
+          handleCopyResult();
           return;
         }
         if (key.return) {

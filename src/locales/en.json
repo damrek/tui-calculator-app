@@ -23,7 +23,10 @@
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "History:",
     "errorDivZero": "Error: division by zero",
-    "errorInvalidExpression": "Error: invalid expression"
+    "errorInvalidExpression": "Error: invalid expression",
+    "copyHint": "Ctrl+Y to copy result",
+    "copySuccess": "Copied to clipboard!",
+    "copyError": "Copy failed"
   },
   "languageSelector": {
     "title": "Select Language",
