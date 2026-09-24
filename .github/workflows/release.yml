@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - uses: oven-sh/setup-bun@v2
@@ -34,7 +34,7 @@ jobs:
       - run: bun build --compile --target=bun-windows-x64 ./dist/index.js --outfile ./dist/calculator.exe
       - run: bun build --compile --target=bun-darwin-arm64 ./dist/index.js --outfile ./dist/calculator-macos
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/calculator-linux
