@@ -9,6 +9,8 @@ import {
 import {
   evaluateExpression,
   isValidExpressionInput,
+  insertAt,
+  deleteBefore,
 } from '../utils/expression';
 import { copyToClipboard } from '../utils/clipboard';
 import { t } from '../locales';
@@ -39,6 +41,7 @@ export interface AppState {
   inputIndex: number;
   inputs: string[];
   expressionInput: string;
+  expressionCursor: number;
   operation: Operation | null;
   history: HistoryEntry[];
   copyFeedback: 'copied' | 'copy-failed' | null;
@@ -61,6 +64,8 @@ export const isValidInput = (current: string, newChar: string): boolean => {
 export interface KeyInput {
   upArrow: boolean;
   downArrow: boolean;
+  leftArrow: boolean;
+  rightArrow: boolean;
   return: boolean;
   escape: boolean;
   backspace: boolean;
@@ -108,6 +113,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     inputIndex: 0,
     inputs: ['', ''],
     expressionInput: '',
+    expressionCursor: 0,
     operation: null,
     history: [],
     copyFeedback: null,
@@ -120,6 +126,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: null,
       error: undefined,
       history: s.history,
@@ -134,6 +141,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: 'sum',
       history: s.history,
       copyFeedback: null,
@@ -147,6 +155,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: 'sub',
       history: s.history,
       copyFeedback: null,
@@ -160,6 +169,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: 'mul',
       history: s.history,
       copyFeedback: null,
@@ -173,6 +183,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: 'div',
       history: s.history,
       copyFeedback: null,
@@ -186,6 +197,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       inputIndex: 0,
       inputs: ['', ''],
       expressionInput: '',
+      expressionCursor: 0,
       operation: null,
       error: undefined,
       history: s.history,
@@ -352,6 +364,23 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           handleCopyResult();
           return;
         }
+        if (key.leftArrow) {
+          setState((s: AppState) => ({
+            ...s,
+            expressionCursor: Math.max(0, s.expressionCursor - 1),
+          }));
+          return;
+        }
+        if (key.rightArrow) {
+          setState((s: AppState) => ({
+            ...s,
+            expressionCursor: Math.min(
+              s.expressionInput.length,
+              s.expressionCursor + 1
+            ),
+          }));
+          return;
+        }
         if (key.return) {
           if (
             state.expressionInput.trim() !== '' &&
@@ -367,16 +396,6 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           goToMenu();
           return;
         }
-        if (isValidExpressionInput(state.expressionInput, input)) {
-          setState((s: AppState) => {
-            const newExpression = s.expressionInput + input;
-            return {
-              ...s,
-              expressionInput: newExpression,
-              ...calculateExpressionResult(newExpression),
-            };
-          });
-        }
         if (
           key.backspace ||
           key.delete ||
@@ -384,14 +403,29 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           input === '\u007f'
         ) {
           setState((s: AppState) => {
-            const newExpression = s.expressionInput.slice(0, -1);
+            const edit = deleteBefore(s.expressionInput, s.expressionCursor);
             return {
               ...s,
-              expressionInput: newExpression,
-              ...calculateExpressionResult(newExpression),
+              expressionInput: edit.text,
+              expressionCursor: edit.cursor,
+              ...calculateExpressionResult(edit.text),
             };
           });
+          return;
         }
+        setState((s: AppState) => {
+          const beforeCursor = s.expressionInput.slice(0, s.expressionCursor);
+          if (!isValidExpressionInput(s.expressionInput, input, beforeCursor)) {
+            return s;
+          }
+          const edit = insertAt(s.expressionInput, s.expressionCursor, input);
+          return {
+            ...s,
+            expressionInput: edit.text,
+            expressionCursor: edit.cursor,
+            ...calculateExpressionResult(edit.text),
+          };
+        });
       }
     },
     { isActive }
