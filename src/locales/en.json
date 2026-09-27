@@ -16,7 +16,7 @@
     "divTitle": "DIVIDE",
     "firstNumber": "First number",
     "secondNumber": "Second number",
-    "switchHelp": "Type numbers, ↑/↓ to switch input, Esc to go back",
+    "switchHelp": "Type numbers, ↑/↓ to switch input, Enter to add, Esc to go back",
     "expressionTitle": "FREE EXPRESSION",
     "expressionLabel": "Expression",
     "expressionHelp": "Type a math expression (e.g. 3 + 5 * 2), ←/→ to move the cursor, Enter to add, Esc to go back",

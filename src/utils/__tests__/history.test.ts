@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { HistoryEntry, AppState } from '../../hooks/useAppInput';
+import {
+  HistoryEntry,
+  AppState,
+  appendHistory,
+  MAX_HISTORY,
+} from '../../hooks/useAppInput';
 import { Operation } from '../calculator';
 
 const makeCalculation = (
@@ -21,6 +26,7 @@ const baseState: AppState = {
   inputIndex: 0,
   inputs: ['', ''],
   expressionInput: '',
+  expressionCursor: 0,
   operation: null,
   history: [],
 };
@@ -81,29 +87,25 @@ describe('HistoryEntry type', () => {
 });
 
 describe('History FIFO behavior', () => {
-  it('should keep only last N entries (simulating MAX_HISTORY=3)', () => {
-    const MAX_HISTORY = 3;
+  it('should keep only the last MAX_HISTORY entries', () => {
     let history: HistoryEntry[] = [];
 
-    for (let i = 0; i < 8; i++) {
-      history = [...history, makeCalculation(i, 1, 'sum', i + 1)].slice(
-        -MAX_HISTORY
-      );
+    for (let i = 0; i < MAX_HISTORY + 3; i++) {
+      history = appendHistory(history, makeCalculation(i, 1, 'sum', i + 1));
     }
 
-    expect(history).toHaveLength(3);
-    expect(history[0]).toEqual(makeCalculation(5, 1, 'sum', 6));
-    expect(history[2]).toEqual(makeCalculation(7, 1, 'sum', 8));
+    expect(history).toHaveLength(MAX_HISTORY);
+    expect(history[0]).toEqual(makeCalculation(3, 1, 'sum', 4));
+    expect(history[MAX_HISTORY - 1]).toEqual(
+      makeCalculation(MAX_HISTORY + 2, 1, 'sum', MAX_HISTORY + 3)
+    );
   });
 
   it('should append new entries at the end', () => {
-    const MAX_HISTORY = 3;
     let history: HistoryEntry[] = [];
 
-    history = [...history, makeCalculation(1, 2, 'sum', 3)].slice(-MAX_HISTORY);
-    history = [...history, makeCalculation(4, 5, 'sub', -1)].slice(
-      -MAX_HISTORY
-    );
+    history = appendHistory(history, makeCalculation(1, 2, 'sum', 3));
+    history = appendHistory(history, makeCalculation(4, 5, 'sub', -1));
 
     expect(history).toHaveLength(2);
     expect(history[0]).toEqual(makeCalculation(1, 2, 'sum', 3));
@@ -111,31 +113,29 @@ describe('History FIFO behavior', () => {
   });
 
   it('should not exceed MAX_HISTORY limit', () => {
-    const MAX_HISTORY = 3;
     let history: HistoryEntry[] = [];
 
     for (let i = 0; i < 100; i++) {
-      history = [...history, makeCalculation(i, 0, 'sum', i)].slice(
-        -MAX_HISTORY
-      );
+      history = appendHistory(history, makeCalculation(i, 0, 'sum', i));
     }
 
     expect(history).toHaveLength(MAX_HISTORY);
   });
 
-  it('should mix calculation and expression entries', () => {
-    const MAX_HISTORY = 3;
+  it('should drop the oldest entries regardless of their kind', () => {
     let history: HistoryEntry[] = [];
 
-    history = [
-      ...history,
-      makeCalculation(2, 3, 'mul', 6),
-      makeExpression('10/4', 2.5),
-      makeCalculation(7, 1, 'sub', 6),
-    ].slice(-MAX_HISTORY);
+    history = appendHistory(history, makeCalculation(2, 3, 'mul', 6));
+    history = appendHistory(history, makeExpression('10/4', 2.5));
+    for (let i = 0; i < MAX_HISTORY; i++) {
+      history = appendHistory(history, makeCalculation(i, 1, 'sub', i));
+    }
 
-    expect(history).toHaveLength(3);
-    expect(history[1]).toEqual(makeExpression('10/4', 2.5));
+    expect(history).toHaveLength(MAX_HISTORY);
+    expect(history[0]).toEqual(makeCalculation(0, 1, 'sub', 0));
+    expect(history[MAX_HISTORY - 1]).toEqual(
+      makeCalculation(MAX_HISTORY - 1, 1, 'sub', MAX_HISTORY - 1)
+    );
   });
 });
 
