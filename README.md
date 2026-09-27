@@ -13,7 +13,8 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Division by zero error handling
 - Live result updates as you type (no need to press "continue")
 - Smart input validation (input masking) — prevents invalid entries like `1.2.3`, `5-`, or double signs
-- Recent calculation history — last 3 operations tracked in-memory and shown inline below the result
+- Recent calculation history — last 5 operations tracked in-memory and shown inline below the result
+- Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
 - Copy result to clipboard with **Ctrl+Y** (copies the full expression, e.g. `5 + 3 = 8`)
 - Clean, responsive terminal UI
 - Multi-language support (English, Español, Français) with persistent preference
@@ -21,11 +22,13 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 ## Language Support
 
 The calculator supports multiple languages:
+
 - **English** (default)
 - **Español** (Spanish)
 - **Français** (French)
 
 ### Switching Languages
+
 Press **Ctrl+L** anywhere in the app to open the language selector modal.
 Use ↑/↓ to choose a language, Enter to confirm, Esc to cancel.
 
@@ -65,6 +68,7 @@ src/
 ## Commands
 
 ### Build & Run
+
 ```bash
 npm run build     # Compile TypeScript to dist/
 npm run start     # Run the compiled app
@@ -72,12 +76,14 @@ npm run dev       # Build and run in one command
 ```
 
 ### Linting & Formatting
+
 ```bash
 npm run lint      # Run ESLint on src/
 npm run format    # Format code with Prettier
 ```
 
 ### Testing
+
 ```bash
 npm run test          # Run tests in watch mode
 npm run test:run      # Run tests once
@@ -87,6 +93,7 @@ npm run test:coverage # Run with coverage report
 Tests are located in `src/utils/__tests__/` and use Vitest with happy-dom.
 
 ### Distribution (Bun)
+
 ```bash
 npm run dist      # Build all binaries (Linux, Windows, macOS)
 npm run build:linux   # Linux x64
@@ -95,6 +102,7 @@ npm run build:mac     # macOS ARM
 ```
 
 Binaries are created in `dist/`:
+
 - `calculator-linux` - Linux executable
 - `calculator.exe` - Windows executable
 - `calculator-macos` - macOS executable (ARM)
@@ -104,12 +112,14 @@ These are portable, standalone executables (no installation required).
 ## Development Guidelines
 
 ### TypeScript Configuration
+
 - Target: ES2020
 - JSX: react
 - Strict mode: enabled
 - Module resolution: bundler
 
 ### Formatting (Prettier)
+
 - Semicolons: Yes
 - Single quotes: Yes
 - Tab width: 2 spaces
@@ -118,18 +128,21 @@ These are portable, standalone executables (no installation required).
 Run `npm run format` before committing.
 
 ### ESLint Rules
+
 - React JSX scope: disabled (use JSX without importing React)
 - No unused variables (errors)
 - TypeScript recommended rules enabled
 - React hooks rules enabled
 
 ### Import Conventions
+
 1. React imports
 2. External libraries (ink)
 3. Internal imports (if any)
 4. Type definitions
 
 ### Naming Conventions
+
 - Files: PascalCase for components (`App.tsx`, `Calculator.tsx`)
 - Variables & Functions: camelCase (`goToMenu`, `calculateResult`)
 - Components: PascalCase (`App`, `Menu`)
@@ -139,6 +152,7 @@ Run `npm run format` before committing.
 ## Pre-commit Hooks
 
 The project uses Husky with lint-staged. On every `git commit`:
+
 - ESLint runs on staged `.ts` and `.tsx` files
 - Prettier formats staged files
 - If either fails, the commit is blocked
@@ -153,6 +167,7 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 ## Dependencies
 
 ### Production
+
 - ink
 - react
 - react-dom
@@ -161,6 +176,7 @@ Always run `npm run lint` and `npm run format` before committing, or let the pre
 - clipboardy
 
 ### Dev Dependencies
+
 - typescript
 - eslint
 - prettier

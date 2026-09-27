@@ -16,7 +16,7 @@
     "divTitle": "DIVISIÓN",
     "firstNumber": "Primer número",
     "secondNumber": "Segundo número",
-    "switchHelp": "Escriba números, ↑/↓ para cambiar, Esc para volver",
+    "switchHelp": "Escriba números, ↑/↓ para cambiar, Enter para agregar, Esc para volver",
     "expressionTitle": "EXPRESIÓN LIBRE",
     "expressionLabel": "Expresión",
     "expressionHelp": "Escriba una expresión matemática (ej. 3 + 5 * 2), ←/→ para mover el cursor, Enter para agregar, Esc para volver",

@@ -47,7 +47,7 @@ export interface AppState {
   copyFeedback: 'copied' | 'copy-failed' | null;
 }
 
-const MAX_HISTORY = 3;
+export const MAX_HISTORY = 5;
 const MENU_OPTIONS = 6;
 const COPY_FEEDBACK_TIMEOUT = 1500;
 
@@ -104,6 +104,11 @@ const calculateExpressionResult = (
   }
   return { result: output.result, error: undefined };
 };
+
+export const appendHistory = (
+  history: HistoryEntry[],
+  entry: HistoryEntry
+): HistoryEntry[] => [...history, entry].slice(-MAX_HISTORY);
 
 export const useAppInput = (options?: { inputEnabled?: boolean }) => {
   const isActive = options?.inputEnabled ?? true;
@@ -205,13 +210,6 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     }));
   }, []);
 
-  const addToHistory = useCallback((entry: HistoryEntry) => {
-    setState((s: AppState) => ({
-      ...s,
-      history: [...s.history, entry].slice(-MAX_HISTORY),
-    }));
-  }, []);
-
   const handleCopyResult = (): void => {
     if (state.result === undefined || state.error) {
       return;
@@ -298,18 +296,27 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
             setState((s: AppState) => ({ ...s, inputIndex: 1 }));
             return;
           }
-          if (state.inputs[0] !== '' && state.inputs[1] !== '') {
-            if (state.operation && state.result !== undefined && !state.error) {
-              addToHistory({
-                kind: 'calculation',
-                a: parseInput(state.inputs[0]),
-                b: parseInput(state.inputs[1]),
-                operation: state.operation,
-                result: state.result,
-              });
-            }
-            goToMenu();
+          const { inputs, operation } = state;
+          if (inputs[0] === '' || inputs[1] === '' || operation === null) {
+            return;
           }
+          if (state.result === undefined || state.error) {
+            return;
+          }
+          const result = state.result;
+          setState((s: AppState) => ({
+            ...s,
+            inputs: ['', ''],
+            inputIndex: 0,
+            ...calculateResult(['', ''], s.operation),
+            history: appendHistory(s.history, {
+              kind: 'calculation',
+              a: parseInput(inputs[0]),
+              b: parseInput(inputs[1]),
+              operation,
+              result,
+            }),
+          }));
           return;
         }
         if (
@@ -382,18 +389,22 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           return;
         }
         if (key.return) {
-          if (
-            state.expressionInput.trim() !== '' &&
-            state.result !== undefined &&
-            !state.error
-          ) {
-            addToHistory({
-              kind: 'expression',
-              expression: state.expressionInput.trim(),
-              result: state.result,
-            });
+          const expression = state.expressionInput.trim();
+          if (expression === '' || state.result === undefined || state.error) {
+            return;
           }
-          goToMenu();
+          const result = state.result;
+          setState((s: AppState) => ({
+            ...s,
+            expressionInput: '',
+            expressionCursor: 0,
+            ...calculateExpressionResult(''),
+            history: appendHistory(s.history, {
+              kind: 'expression',
+              expression,
+              result,
+            }),
+          }));
           return;
         }
         if (

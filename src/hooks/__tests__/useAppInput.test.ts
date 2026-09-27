@@ -24,7 +24,7 @@ vi.mock('../../utils/clipboard', () => ({
   copyToClipboard: clipboardMocks.copyToClipboard,
 }));
 
-import { useAppInput } from '../useAppInput';
+import { useAppInput, MAX_HISTORY } from '../useAppInput';
 
 const fireKey = (input: string, key: Record<string, boolean>) => {
   act(() => {
@@ -65,10 +65,16 @@ const moveCursorRight = (times: number) => {
   }
 };
 
+const typeDigits = (value: string) => {
+  for (const char of value) {
+    fireKey(char, {});
+  }
+};
+
 const fillBinaryInput = (a: string, b: string) => {
-  fireKey(a, {});
+  typeDigits(a);
   fireKey('', { downArrow: true });
-  fireKey(b, {});
+  typeDigits(b);
 };
 
 describe('useAppInput', () => {
@@ -337,6 +343,177 @@ describe('useAppInput', () => {
 
       goToExpressionScreen();
       expect(result.current.state.expressionCursor).toBe(0);
+    });
+  });
+
+  describe('committing with Enter', () => {
+    const pressEnter = () => fireKey('', { return: true });
+
+    describe('free expression mode', () => {
+      it('should stay on the expression screen and clear the input after Enter', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression('3 + 5');
+
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-expression');
+        expect(result.current.state.expressionInput).toBe('');
+        expect(result.current.state.expressionCursor).toBe(0);
+        expect(result.current.state.result).toBeUndefined();
+        expect(result.current.state.error).toBeUndefined();
+        expect(result.current.state.history).toEqual([
+          { kind: 'expression', expression: '3 + 5', result: 8 },
+        ]);
+      });
+
+      it('should trim the expression before storing it in the history', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression(' 3 + 5 ');
+
+        pressEnter();
+
+        expect(result.current.state.history).toEqual([
+          { kind: 'expression', expression: '3 + 5', result: 8 },
+        ]);
+      });
+
+      it('should do nothing on an empty expression', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-expression');
+        expect(result.current.state.history).toEqual([]);
+      });
+
+      it('should do nothing on an expression with an error', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression('1/0');
+
+        expect(result.current.state.error).toBeDefined();
+
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-expression');
+        expect(result.current.state.expressionInput).toBe('1/0');
+        expect(result.current.state.history).toEqual([]);
+      });
+
+      it('should let Esc go back to the menu', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression('3 + 5');
+        pressEnter();
+
+        fireKey('', { escape: true });
+
+        expect(result.current.state.screen).toBe('menu');
+        expect(result.current.state.history).toHaveLength(1);
+      });
+    });
+
+    describe('binary screens', () => {
+      it('should move to the second input on the first Enter', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        typeDigits('3');
+
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-sum');
+        expect(result.current.state.inputIndex).toBe(1);
+        expect(result.current.state.inputs).toEqual(['3', '']);
+        expect(result.current.state.history).toEqual([]);
+      });
+
+      it('should stay on the screen and clear the input after Enter', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        fillBinaryInput('3', '5');
+
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-sum');
+        expect(result.current.state.inputs).toEqual(['', '']);
+        expect(result.current.state.inputIndex).toBe(0);
+        expect(result.current.state.result).toBeUndefined();
+        expect(result.current.state.error).toBeUndefined();
+        expect(result.current.state.history).toEqual([
+          { kind: 'calculation', a: 3, b: 5, operation: 'sum', result: 8 },
+        ]);
+      });
+
+      it('should start a new operation after committing', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        fillBinaryInput('3', '5');
+        pressEnter();
+
+        typeDigits('1');
+        pressEnter();
+        typeDigits('2');
+        pressEnter();
+
+        expect(result.current.state.inputs).toEqual(['', '']);
+        expect(result.current.state.history).toEqual([
+          { kind: 'calculation', a: 3, b: 5, operation: 'sum', result: 8 },
+          { kind: 'calculation', a: 1, b: 2, operation: 'sum', result: 3 },
+        ]);
+      });
+
+      it('should do nothing on an empty second input', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        fireKey('3', {});
+
+        pressEnter();
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-sum');
+        expect(result.current.state.inputs).toEqual(['3', '']);
+        expect(result.current.state.history).toEqual([]);
+      });
+
+      it('should do nothing on a division by zero', () => {
+        const { result } = renderHook(() => useAppInput());
+        for (let i = 0; i < 3; i++) {
+          fireKey('', { downArrow: true });
+        }
+        pressEnter();
+        fillBinaryInput('10', '0');
+
+        expect(result.current.state.error).toBeDefined();
+
+        pressEnter();
+        pressEnter();
+
+        expect(result.current.state.screen).toBe('input-div');
+        expect(result.current.state.inputs).toEqual(['10', '0']);
+        expect(result.current.state.history).toEqual([]);
+      });
+    });
+
+    describe('history limit', () => {
+      it('should keep at most MAX_HISTORY entries', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        for (const expression of ['1+1', '2+2', '3+3', '4+4', '5+5', '6+6']) {
+          typeExpression(expression);
+          pressEnter();
+        }
+
+        expect(result.current.state.history).toHaveLength(MAX_HISTORY);
+        const last = result.current.state.history;
+        expect(last[last.length - 1]).toEqual({
+          kind: 'expression',
+          expression: '6+6',
+          result: 12,
+        });
+      });
     });
   });
 });
