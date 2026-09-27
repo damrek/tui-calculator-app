@@ -37,7 +37,7 @@ const App: React.FC = () => {
   const renderHistory = (history: HistoryEntry[]) => (
     <Box flexDirection="column" marginTop={1}>
       <Text dimColor>{t('input.historyLabel')}</Text>
-      {history.slice(-3).map((entry, index) => (
+      {history.map((entry, index) => (
         <Text key={index} dimColor>
           {' '}
           {entry.kind === 'expression'
