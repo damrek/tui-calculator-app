@@ -9,6 +9,7 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - TypeScript for type safety
 - Multiple calculation modes (sum, subtract, multiply, divide)
 - Free expression mode (e.g. `3 + 5 * 2` with parentheses) with live result
+- Editable expression input — visible cursor, ←/→ to move, insert and backspace at any position
 - Division by zero error handling
 - Live result updates as you type (no need to press "continue")
 - Smart input validation (input masking) — prevents invalid entries like `1.2.3`, `5-`, or double signs

@@ -19,7 +19,7 @@
     "switchHelp": "Entrez des nombres, ↑/↓ pour basculer, Echap pour revenir",
     "expressionTitle": "EXPRESSION LIBRE",
     "expressionLabel": "Expression",
-    "expressionHelp": "Saisissez une expression mathématique (ex. 3 + 5 * 2), Entrée pour ajouter, Echap pour revenir",
+    "expressionHelp": "Saisissez une expression mathématique (ex. 3 + 5 * 2), ←/→ pour déplacer le curseur, Entrée pour ajouter, Echap pour revenir",
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "Historique:",
     "errorDivZero": "Erreur: division par zéro",

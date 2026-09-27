@@ -153,6 +153,14 @@ const App: React.FC = () => {
     </Box>
   );
 
+  const renderWithCursor = (value: string, cursor: number) => (
+    <Text>
+      {value.slice(0, cursor)}
+      <Text inverse>{value[cursor] ?? ' '}</Text>
+      {value.slice(cursor + 1)}
+    </Text>
+  );
+
   const renderExpressionInput = () => (
     <Box
       flexDirection="column"
@@ -165,7 +173,8 @@ const App: React.FC = () => {
       </Text>
       <Text> </Text>
       <Text>
-        ▶ {t('input.expressionLabel')}: {state.expressionInput || '(empty)'}
+        ▶ {t('input.expressionLabel')}:{' '}
+        {renderWithCursor(state.expressionInput, state.expressionCursor)}
       </Text>
       {(state.result !== undefined || state.error) && (
         <Box flexDirection="column" marginTop={1}>

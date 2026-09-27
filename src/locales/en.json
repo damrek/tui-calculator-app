@@ -19,7 +19,7 @@
     "switchHelp": "Type numbers, ↑/↓ to switch input, Esc to go back",
     "expressionTitle": "FREE EXPRESSION",
     "expressionLabel": "Expression",
-    "expressionHelp": "Type a math expression (e.g. 3 + 5 * 2), Enter to add, Esc to go back",
+    "expressionHelp": "Type a math expression (e.g. 3 + 5 * 2), ←/→ to move the cursor, Enter to add, Esc to go back",
     "result": "{a} {op} {b} = {result}",
     "historyLabel": "History:",
     "errorDivZero": "Error: division by zero",

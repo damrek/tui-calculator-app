@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { evaluateExpression, isValidExpressionInput } from '../expression';
+import {
+  evaluateExpression,
+  isValidExpressionInput,
+  insertAt,
+  deleteBefore,
+} from '../expression';
 
 describe('evaluateExpression', () => {
   it('should evaluate sum', () => {
@@ -122,5 +127,57 @@ describe('isValidExpressionInput', () => {
       expect(isValidExpressionInput(current, char)).toBe(true);
       current += char;
     }
+  });
+
+  it('should check the opening parenthesis before the cursor', () => {
+    expect(isValidExpressionInput('(1+2)', ')', '')).toBe(false);
+    expect(isValidExpressionInput('(1+2)', ')', '(1+2')).toBe(true);
+  });
+
+  it('should default beforeCursor to the whole expression', () => {
+    expect(isValidExpressionInput('2*(3+4', ')')).toBe(true);
+  });
+});
+
+describe('insertAt', () => {
+  it('should insert at the end', () => {
+    expect(insertAt('3 +', 3, '5')).toEqual({ text: '3 +5', cursor: 4 });
+  });
+
+  it('should insert in the middle', () => {
+    expect(insertAt('3 + 5', 3, '2')).toEqual({
+      text: '3 +2 5',
+      cursor: 4,
+    });
+  });
+
+  it('should insert at the start', () => {
+    expect(insertAt('3', 0, '1')).toEqual({ text: '13', cursor: 1 });
+  });
+
+  it('should insert into an empty text', () => {
+    expect(insertAt('', 0, '7')).toEqual({ text: '7', cursor: 1 });
+  });
+
+  it('should clamp a cursor past the end', () => {
+    expect(insertAt('ab', 99, 'c')).toEqual({ text: 'abc', cursor: 3 });
+  });
+});
+
+describe('deleteBefore', () => {
+  it('should delete the character before the cursor', () => {
+    expect(deleteBefore('3 + 5', 5)).toEqual({ text: '3 + ', cursor: 4 });
+  });
+
+  it('should delete in the middle', () => {
+    expect(deleteBefore('3 + 5', 2)).toEqual({ text: '3+ 5', cursor: 1 });
+  });
+
+  it('should be a no-op at the start', () => {
+    expect(deleteBefore('3 + 5', 0)).toEqual({ text: '3 + 5', cursor: 0 });
+  });
+
+  it('should be a no-op on an empty text', () => {
+    expect(deleteBefore('', 0)).toEqual({ text: '', cursor: 0 });
   });
 });
