@@ -346,6 +346,148 @@ describe('useAppInput', () => {
     });
   });
 
+  describe('batched stdin chunks', () => {
+    it('should insert every char of a printable chunk on the expression screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+
+      fireKey('789', {});
+
+      expect(result.current.state.expressionInput).toBe('789');
+      expect(result.current.state.expressionCursor).toBe(3);
+    });
+
+    it('should delete one char per delete char in a batched chunk', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('1234567');
+
+      fireKey('\u007f\u007f\u007f', {});
+
+      expect(result.current.state.expressionInput).toBe('1234');
+      expect(result.current.state.expressionCursor).toBe(4);
+    });
+
+    it('should insert a multi char chunk at the cursor position', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('12');
+      moveCursorLeft(1);
+
+      fireKey('34', {});
+
+      expect(result.current.state.expressionInput).toBe('1342');
+      expect(result.current.state.expressionCursor).toBe(3);
+    });
+
+    it('should insert a multi char chunk exactly like typing it char by char', () => {
+      const batched = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('12');
+      moveCursorLeft(1);
+      fireKey('34', {});
+
+      const typed = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('12');
+      moveCursorLeft(1);
+      typeExpression('34');
+
+      expect(batched.result.current.state.expressionInput).toBe(
+        typed.result.current.state.expressionInput
+      );
+      expect(batched.result.current.state.expressionCursor).toBe(
+        typed.result.current.state.expressionCursor
+      );
+    });
+
+    it('should drop the invalid chars of a chunk and keep the valid ones', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+
+      fireKey('2*3x', {});
+
+      expect(result.current.state.expressionInput).toBe('2*3');
+      expect(result.current.state.expressionCursor).toBe(3);
+    });
+
+    it('should drop a tab inside a chunk but keep its valid characters', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+
+      fireKey('1\t2', {});
+
+      expect(result.current.state.expressionInput).toBe('12');
+      expect(result.current.state.expressionCursor).toBe(2);
+      expect(result.current.state.result).toBe(12);
+      expect(result.current.state.error).toBeUndefined();
+    });
+
+    it('should insert every digit of a chunk on a binary screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+
+      fireKey('10', {});
+
+      expect(result.current.state.inputs[0]).toBe('10');
+    });
+
+    it('should drop a repeated decimal point inside a chunk', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+
+      fireKey('1.2.3', {});
+
+      expect(result.current.state.inputs[0]).toBe('1.23');
+    });
+
+    it('should drop a repeated decimal point like typing it char by char', () => {
+      const batched = renderHook(() => useAppInput());
+      goToSumScreen();
+      fireKey('1.2.3', {});
+
+      const typed = renderHook(() => useAppInput());
+      goToSumScreen();
+      typeDigits('1.2.3');
+
+      expect(batched.result.current.state.inputs).toEqual(
+        typed.result.current.state.inputs
+      );
+    });
+
+    it('should drop a raw escape char inside a chunk but keep its neighbours', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+
+      fireKey('1\u001b2', {});
+
+      expect(result.current.state.expressionInput).toBe('12');
+      expect(result.current.state.screen).toBe('input-expression');
+    });
+
+    it('should move the cursor by one on an arrow key event', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('123');
+
+      fireKey('', { leftArrow: true });
+
+      expect(result.current.state.expressionCursor).toBe(2);
+      expect(result.current.state.expressionInput).toBe('123');
+    });
+
+    it('should not split a named key event that carries extra input', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToExpressionScreen();
+      typeExpression('123');
+
+      fireKey('ab', { leftArrow: true });
+
+      expect(result.current.state.expressionCursor).toBe(2);
+      expect(result.current.state.expressionInput).toBe('123');
+    });
+  });
+
   describe('committing with Enter', () => {
     const pressEnter = () => fireKey('', { return: true });
 
