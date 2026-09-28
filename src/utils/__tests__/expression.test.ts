@@ -100,6 +100,12 @@ describe('isValidExpressionInput', () => {
     expect(isValidExpressionInput('1', '.')).toBe(true);
   });
 
+  it('should accept a plain space but reject other whitespace', () => {
+    expect(isValidExpressionInput('1', ' ')).toBe(true);
+    expect(isValidExpressionInput('1', '\t')).toBe(false);
+    expect(isValidExpressionInput('1', '\n')).toBe(false);
+  });
+
   it('should reject letters', () => {
     expect(isValidExpressionInput('3', 'a')).toBe(false);
     expect(isValidExpressionInput('3', 'x')).toBe(false);

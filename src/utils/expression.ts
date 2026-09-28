@@ -3,7 +3,7 @@ import { CalculateOutput } from './calculator';
 
 const parser = new Parser();
 
-const EXPRESSION_CHARS = /^[0-9+\-*/().\s]$/;
+const EXPRESSION_CHARS = /^[0-9+\-*/(). ]$/;
 
 export interface TextEdit {
   text: string;
