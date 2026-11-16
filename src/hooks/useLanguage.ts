@@ -3,16 +3,22 @@ import { useInput } from 'ink';
 import { loadConfig, saveConfig } from '../utils/config';
 import { setLanguage, languages, Language } from '../locales';
 
+export interface UseLanguageOptions {
+  enableHotkey?: boolean;
+}
+
 export interface UseLanguageReturn {
   language: Language;
   showSelector: boolean;
   selectorIndex: number;
   setSelectorIndex: (index: number) => void;
+  openSelector: () => void;
   onSelectLanguage: () => void;
   onCancelSelector: () => void;
 }
 
-export function useLanguage(): UseLanguageReturn {
+export function useLanguage(options?: UseLanguageOptions): UseLanguageReturn {
+  const enableHotkey = options?.enableHotkey ?? true;
   const [language, setLanguageState] = useState<Language>(() => {
     const config = loadConfig();
     setLanguage(config.language);
@@ -25,7 +31,7 @@ export function useLanguage(): UseLanguageReturn {
     const newLang = languages[selectorIndex];
     setLanguage(newLang);
     setLanguageState(newLang);
-    saveConfig({ language: newLang });
+    saveConfig({ ...loadConfig(), language: newLang });
     setShowSelector(false);
   }, [selectorIndex]);
 
@@ -40,7 +46,7 @@ export function useLanguage(): UseLanguageReturn {
   }, [language]);
 
   useInput((input, key) => {
-    if (key.ctrl && input === 'l') {
+    if (enableHotkey && key.ctrl && input === 'l') {
       handleOpenSelector();
     }
     if (showSelector) {
@@ -61,6 +67,7 @@ export function useLanguage(): UseLanguageReturn {
     showSelector,
     selectorIndex,
     setSelectorIndex,
+    openSelector: handleOpenSelector,
     onSelectLanguage: handleSelectLanguage,
     onCancelSelector: handleCancelSelector,
   };

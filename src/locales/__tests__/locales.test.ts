@@ -6,6 +6,7 @@ import {
   getLanguageName,
   languages,
 } from '../index';
+import { themeNames } from '../../utils/themes';
 
 describe('locales', () => {
   beforeEach(() => {
@@ -79,5 +80,29 @@ describe('locales', () => {
   it('should include expression keys in translations', () => {
     expect(t('menu.expression')).toBe('Free expression');
     expect(t('input.errorInvalidExpression')).toBe('Error: invalid expression');
+  });
+
+  it('should translate every language name in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      for (const code of languages) {
+        expect(getLanguageName(code)).not.toBe(
+          `languageSelector.languages.${code}`
+        );
+      }
+    }
+  });
+
+  it('should translate theme names in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      for (const theme of themeNames) {
+        const key = `themeSelector.themes.${theme}`;
+        expect(t(key)).not.toBe(key);
+      }
+      expect(t('themeSelector.title')).not.toBe('themeSelector.title');
+      expect(t('themeSelector.help')).not.toBe('themeSelector.help');
+      expect(t('themeSelector.hint')).not.toBe('themeSelector.hint');
+    }
   });
 });

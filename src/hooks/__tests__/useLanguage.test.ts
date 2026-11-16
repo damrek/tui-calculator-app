@@ -73,6 +73,28 @@ describe('useLanguage', () => {
     expect(getLanguage()).toBe('fr');
   });
 
+  it('should keep the stored theme when persisting the language', () => {
+    configMocks.loadConfig.mockReturnValue({
+      language: 'en',
+      theme: 'sunset',
+    });
+    const { result } = renderHook(() => useLanguage());
+    fireKey('l', { ctrl: true });
+    fireKey('', { return: true });
+
+    expect(configMocks.saveConfig).toHaveBeenCalledWith({
+      language: 'en',
+      theme: 'sunset',
+    });
+    expect(result.current.showSelector).toBe(false);
+  });
+
+  it('should not react to Ctrl+L when the hotkey is disabled', () => {
+    const { result } = renderHook(() => useLanguage({ enableHotkey: false }));
+    fireKey('l', { ctrl: true });
+    expect(result.current.showSelector).toBe(false);
+  });
+
   it('should cancel the selector with Esc without saving', () => {
     const { result } = renderHook(() => useLanguage());
     fireKey('l', { ctrl: true });

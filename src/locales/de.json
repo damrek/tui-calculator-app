@@ -39,5 +39,17 @@
       "de": "Deutsch",
       "it": "Italienisch"
     }
+  },
+  "themeSelector": {
+    "title": "Farbschema auswählen",
+    "current": "Aktuell: {theme}",
+    "help": "↑/↓ zum Auswählen, Enter zum Bestätigen, Esc zum Abbrechen",
+    "hint": "Strg+L Sprache · Strg+T Farbschema",
+    "themes": {
+      "ocean": "Ozean",
+      "forest": "Wald",
+      "sunset": "Sonnenuntergang",
+      "mono": "Mono"
+    }
   }
 }

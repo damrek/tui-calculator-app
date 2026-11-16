@@ -39,5 +39,17 @@
       "de": "Tedesco",
       "it": "Italiano"
     }
+  },
+  "themeSelector": {
+    "title": "Seleziona tema",
+    "current": "Attuale: {theme}",
+    "help": "Usa ↑/↓ per selezionare, Invio per confermare, Esc per annullare",
+    "hint": "Ctrl+L lingua · Ctrl+T tema",
+    "themes": {
+      "ocean": "Oceano",
+      "forest": "Foresta",
+      "sunset": "Tramonto",
+      "mono": "Mono"
+    }
   }
 }

@@ -191,10 +191,18 @@ useInput((input: string, key: KeyInput) => {
 
 ```typescript
 <Box flexDirection="column" borderStyle="round" padding={1}>
-  <Text bold color="cyan">Title</Text>
+  <Text bold color={colors.title}>Title</Text>
   <Text dimColor>Instructions</Text>
 </Box>
 ```
+
+### Theming
+Never hardcode a color in a component. Read the active palette instead:
+
+- `useTheme()` returns `colors` (`border`, `title`, `selected`, `success`, `danger`, `warning`) plus the selected theme name.
+- Child components accept the palette as a `colors: ThemeColors` prop; `App` is the only place that calls `useTheme()`.
+- Palettes live in `src/utils/themes.ts`. Adding a theme means one entry in `themeNames`, one palette in `themeColors`, and one label per locale file under `themeSelector.themes`.
+- Hotkeys are owned by `App` (`Ctrl+L` language, `Ctrl+T` theme) so only one overlay can be open at a time; the hooks expose `openSelector` and take `{ enableHotkey: false }`.
 
 ---
 
@@ -224,10 +232,12 @@ src/
 ├── App.tsx              # Main application component (rendering only)
 ├── index.tsx            # Entry point (renders App)
 ├── components/
-│   └── LanguageSelector.tsx  # Language selector modal overlay
+│   ├── LanguageSelector.tsx  # Language selector modal overlay
+│   └── ThemeSelector.tsx     # Theme selector modal overlay
 ├── hooks/
 │   ├── useAppInput.ts   # Custom hook with state and input handling
-│   └── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+│   ├── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+│   └── useTheme.ts      # Theme state, Ctrl+T handler, selector logic
 ├── locales/
 │   ├── index.ts         # Translation loader and t() helper
 │   ├── en.json          # English translations
@@ -238,6 +248,7 @@ src/
 └── utils/
     ├── calculator.ts    # Calculation logic (calculate, parseInput, Operation)
     ├── expression.ts    # Expression evaluation (expr-eval) and input validation
+    ├── themes.ts        # Theme names and color palettes
     └── config.ts        # Config file read/write (~/.calculator/config.json)
 ```
 
