@@ -17,7 +17,8 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
 - Copy result to clipboard with **Ctrl+Y** (copies the full expression, e.g. `5 + 3 = 8`)
 - Clean, responsive terminal UI
-- Multi-language support (English, Español, Français) with persistent preference
+- Multi-language support (English, Español, Français, Deutsch, Italiano) with persistent preference
+- Four color themes (Ocean, Forest, Sunset, Mono) with persistent preference
 
 ## Language Support
 
@@ -26,6 +27,8 @@ The calculator supports multiple languages:
 - **English** (default)
 - **Español** (Spanish)
 - **Français** (French)
+- **Deutsch** (German)
+- **Italiano** (Italian)
 
 ### Switching Languages
 
@@ -33,6 +36,19 @@ Press **Ctrl+L** anywhere in the app to open the language selector modal.
 Use ↑/↓ to choose a language, Enter to confirm, Esc to cancel.
 
 Your preference is saved to `~/.calculator/config.json` and persists across sessions.
+
+## Themes
+
+Press **Ctrl+T** anywhere in the app to open the theme selector.
+Use ↑/↓ to choose a theme, Enter to confirm, Esc to cancel.
+
+- **Ocean** (default) — cyan borders with green highlights
+- **Forest** — green borders with bright green highlights
+- **Sunset** — magenta borders with yellow highlights
+- **Mono** — grayscale borders with white highlights
+
+The chosen theme is stored next to the language in `~/.calculator/config.json`.
+The footer of every screen shows both shortcuts: `Ctrl+L` for language, `Ctrl+T` for theme.
 
 > **Note**: On Linux, copying to clipboard requires `xclip`, `xsel`, or `wl-copy` to be installed. If missing, the app shows a "Copy failed" notice instead of crashing.
 
@@ -48,21 +64,26 @@ src/
 ├── App.tsx              # Main application component (rendering only)
 ├── index.tsx            # Entry point (renders App)
 ├── components/
-│   └── LanguageSelector.tsx  # Language selector modal overlay
+│   ├── LanguageSelector.tsx  # Language selector modal overlay
+│   └── ThemeSelector.tsx     # Theme selector modal overlay
 ├── hooks/
 │   ├── useAppInput.ts   # Custom hook with state and input handling
-│   └── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+│   ├── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
+│   └── useTheme.ts      # Theme state, Ctrl+T handler, selector logic
 ├── locales/
 │   ├── index.ts         # Translation loader and t() helper
 │   ├── en.json          # English translations
 │   ├── es.json          # Spanish translations
-│   └── fr.json          # French translations
+│   ├── fr.json          # French translations
+│   ├── de.json          # German translations
+│   └── it.json          # Italian translations
 └── utils/
     ├── calculator.ts    # Calculation logic
     ├── expression.ts    # Free expression evaluation (expr-eval)
+    ├── themes.ts        # Theme names and color palettes
     ├── config.ts        # Config file read/write (~/.calculator/config.json)
     ├── clipboard.ts     # Clipboard wrapper (ClipboardY)
-    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config, clipboard)
+    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config, clipboard, themes)
 ```
 
 ## Commands

@@ -6,6 +6,7 @@ import {
   getLanguageName,
   languages,
 } from '../index';
+import { themeNames } from '../../utils/themes';
 
 describe('locales', () => {
   beforeEach(() => {
@@ -43,7 +44,32 @@ describe('locales', () => {
   });
 
   it('should expose all languages', () => {
-    expect(languages).toEqual(['en', 'es', 'fr']);
+    expect(languages).toEqual(['en', 'es', 'fr', 'de', 'it']);
+  });
+
+  it('should switch to german and translate its labels', () => {
+    setLanguage('de');
+    expect(getLanguage()).toBe('de');
+    expect(t('menu.title')).toBe('Rechner-Menü');
+    expect(t('menu.expression')).toBe('Freier Ausdruck');
+    expect(t('input.firstNumber')).toBe('Erste Zahl');
+  });
+
+  it('should switch to italian and translate its labels', () => {
+    setLanguage('it');
+    expect(getLanguage()).toBe('it');
+    expect(t('menu.title')).toBe('Menu Calcolatrice');
+    expect(t('menu.expression')).toBe('Espressione libera');
+    expect(t('input.firstNumber')).toBe('Primo numero');
+  });
+
+  it('should return the localized language name in german and italian', () => {
+    setLanguage('de');
+    expect(getLanguageName('de')).toBe('Deutsch');
+    expect(getLanguageName('it')).toBe('Italienisch');
+    setLanguage('it');
+    expect(getLanguageName('de')).toBe('Tedesco');
+    expect(getLanguageName('it')).toBe('Italiano');
   });
 
   it('should return the localized language name', () => {
@@ -54,5 +80,29 @@ describe('locales', () => {
   it('should include expression keys in translations', () => {
     expect(t('menu.expression')).toBe('Free expression');
     expect(t('input.errorInvalidExpression')).toBe('Error: invalid expression');
+  });
+
+  it('should translate every language name in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      for (const code of languages) {
+        expect(getLanguageName(code)).not.toBe(
+          `languageSelector.languages.${code}`
+        );
+      }
+    }
+  });
+
+  it('should translate theme names in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      for (const theme of themeNames) {
+        const key = `themeSelector.themes.${theme}`;
+        expect(t(key)).not.toBe(key);
+      }
+      expect(t('themeSelector.title')).not.toBe('themeSelector.title');
+      expect(t('themeSelector.help')).not.toBe('themeSelector.help');
+      expect(t('themeSelector.hint')).not.toBe('themeSelector.hint');
+    }
   });
 });

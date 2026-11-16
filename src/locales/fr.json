@@ -35,7 +35,21 @@
     "languages": {
       "en": "Anglais",
       "es": "Espagnol",
-      "fr": "Français"
+      "fr": "Français",
+      "de": "Allemand",
+      "it": "Italien"
+    }
+  },
+  "themeSelector": {
+    "title": "Sélectionner le thème",
+    "current": "Actuel: {theme}",
+    "help": "Utilisez ↑/↓ pour sélectionner, Entrée pour confirmer, Echap pour annuler",
+    "hint": "Ctrl+L langue · Ctrl+T thème",
+    "themes": {
+      "ocean": "Océan",
+      "forest": "Forêt",
+      "sunset": "Coucher de soleil",
+      "mono": "Mono"
     }
   }
 }

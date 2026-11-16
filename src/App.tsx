@@ -1,14 +1,31 @@
 import React from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useInput } from 'ink';
 import { useAppInput, HistoryEntry } from './hooks/useAppInput';
 import { useLanguage } from './hooks/useLanguage';
+import { useTheme } from './hooks/useTheme';
 import { LanguageSelector } from './components/LanguageSelector';
+import { ThemeSelector } from './components/ThemeSelector';
 import { t } from './locales';
 import { getOperationSymbol } from './utils/calculator';
 
 const App: React.FC = () => {
-  const { showSelector, selectorIndex } = useLanguage();
-  const { state } = useAppInput({ inputEnabled: !showSelector });
+  const language = useLanguage({ enableHotkey: false });
+  const theme = useTheme({ enableHotkey: false });
+  const { state } = useAppInput({
+    inputEnabled: !language.showSelector && !theme.showSelector,
+  });
+  const colors = theme.colors;
+
+  useInput((input, key) => {
+    if (!key.ctrl) {
+      return;
+    }
+    if (input === 'l' && !theme.showSelector) {
+      language.openSelector();
+    } else if (input === 't' && !language.showSelector) {
+      theme.openSelector();
+    }
+  });
 
   const getOperationTitle = (): string => {
     switch (state.operation) {
@@ -27,7 +44,12 @@ const App: React.FC = () => {
 
   const renderCopyFeedback = () =>
     state.copyFeedback !== null && (
-      <Text bold color={state.copyFeedback === 'copied' ? 'green' : 'yellow'}>
+      <Text
+        bold
+        color={
+          state.copyFeedback === 'copied' ? colors.success : colors.warning
+        }
+      >
         {state.copyFeedback === 'copied'
           ? ` ${t('input.copySuccess')}`
           : ` ${t('input.copyError')}`}
@@ -52,50 +74,50 @@ const App: React.FC = () => {
     <Box
       flexDirection="column"
       borderStyle="round"
-      borderColor="cyan"
+      borderColor={colors.border}
       padding={1}
     >
-      <Text bold color="cyan">
+      <Text bold color={colors.title}>
         {t('menu.title')}
       </Text>
       <Text> </Text>
       {state.selectedIndex === 0 ? (
-        <Text bold color="green">
+        <Text bold color={colors.selected}>
           ▶ {t('menu.sum')}
         </Text>
       ) : (
         <Text> {t('menu.sum')}</Text>
       )}
       {state.selectedIndex === 1 ? (
-        <Text bold color="green">
+        <Text bold color={colors.selected}>
           ▶ {t('menu.sub')}
         </Text>
       ) : (
         <Text> {t('menu.sub')}</Text>
       )}
       {state.selectedIndex === 2 ? (
-        <Text bold color="green">
+        <Text bold color={colors.selected}>
           ▶ {t('menu.mul')}
         </Text>
       ) : (
         <Text> {t('menu.mul')}</Text>
       )}
       {state.selectedIndex === 3 ? (
-        <Text bold color="green">
+        <Text bold color={colors.selected}>
           ▶ {t('menu.div')}
         </Text>
       ) : (
         <Text> {t('menu.div')}</Text>
       )}
       {state.selectedIndex === 4 ? (
-        <Text bold color="green">
+        <Text bold color={colors.selected}>
           ▶ {t('menu.expression')}
         </Text>
       ) : (
         <Text> {t('menu.expression')}</Text>
       )}
       {state.selectedIndex === 5 ? (
-        <Text bold color="red">
+        <Text bold color={colors.danger}>
           ▶ {t('menu.exit')}
         </Text>
       ) : (
@@ -110,10 +132,10 @@ const App: React.FC = () => {
     <Box
       flexDirection="column"
       borderStyle="round"
-      borderColor="cyan"
+      borderColor={colors.border}
       padding={1}
     >
-      <Text bold color="cyan">
+      <Text bold color={colors.title}>
         {getOperationTitle()}
       </Text>
       <Text> </Text>
@@ -134,11 +156,11 @@ const App: React.FC = () => {
             {state.inputs[0]} {getOperationSymbol(state.operation)}{' '}
             {state.inputs[1]} ={' '}
             {state.error ? (
-              <Text bold color="red">
+              <Text bold color={colors.danger}>
                 {state.error}
               </Text>
             ) : (
-              <Text bold color="green">
+              <Text bold color={colors.success}>
                 {state.result}
               </Text>
             )}
@@ -165,10 +187,10 @@ const App: React.FC = () => {
     <Box
       flexDirection="column"
       borderStyle="round"
-      borderColor="cyan"
+      borderColor={colors.border}
       padding={1}
     >
-      <Text bold color="cyan">
+      <Text bold color={colors.title}>
         {t('input.expressionTitle')}
       </Text>
       <Text> </Text>
@@ -182,11 +204,11 @@ const App: React.FC = () => {
             {' '}
             {state.expressionInput} ={' '}
             {state.error ? (
-              <Text bold color="red">
+              <Text bold color={colors.danger}>
                 {state.error}
               </Text>
             ) : (
-              <Text bold color="green">
+              <Text bold color={colors.success}>
                 {state.result}
               </Text>
             )}
@@ -209,9 +231,20 @@ const App: React.FC = () => {
       {state.screen === 'input-mul' && renderInput()}
       {state.screen === 'input-div' && renderInput()}
       {state.screen === 'input-expression' && renderExpressionInput()}
-      {showSelector && (
+      <Box marginTop={1}>
+        <Text dimColor>{t('themeSelector.hint')}</Text>
+      </Box>
+      {language.showSelector && (
         <Box alignItems="center" flexDirection="column" marginTop={1}>
-          <LanguageSelector selectorIndex={selectorIndex} />
+          <LanguageSelector
+            selectorIndex={language.selectorIndex}
+            colors={colors}
+          />
+        </Box>
+      )}
+      {theme.showSelector && (
+        <Box alignItems="center" flexDirection="column" marginTop={1}>
+          <ThemeSelector selectorIndex={theme.selectorIndex} colors={colors} />
         </Box>
       )}
     </Box>

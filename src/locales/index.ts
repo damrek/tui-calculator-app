@@ -1,16 +1,28 @@
 import en from './en.json';
 import es from './es.json';
 import fr from './fr.json';
+import de from './de.json';
+import it from './it.json';
 
-export type Language = 'en' | 'es' | 'fr';
+export const languages = ['en', 'es', 'fr', 'de', 'it'] as const;
+
+export type Language = (typeof languages)[number];
+
+export const defaultLanguage: Language = 'en';
 
 type TranslationDict = {
   [key: string]: string | TranslationDict;
 };
 
-const translations: Record<Language, TranslationDict> = { en, es, fr };
+const translations: Record<Language, TranslationDict> = {
+  en,
+  es,
+  fr,
+  de,
+  it,
+};
 
-let currentLanguage: Language = 'en';
+let currentLanguage: Language = defaultLanguage;
 
 export function setLanguage(lang: Language): void {
   currentLanguage = lang;
@@ -41,8 +53,6 @@ export function t(key: string, params?: Record<string, string>): string {
   }
   return value;
 }
-
-export const languages: Language[] = ['en', 'es', 'fr'];
 
 export function getLanguageName(lang: Language): string {
   return t(`languageSelector.languages.${lang}`);

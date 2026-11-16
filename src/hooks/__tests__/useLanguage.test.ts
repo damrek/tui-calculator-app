@@ -24,7 +24,7 @@ vi.mock('ink', () => ({
 vi.mock('../../utils/config', () => configMocks);
 
 import { useLanguage } from '../useLanguage';
-import { getLanguage } from '../../locales';
+import { getLanguage, languages } from '../../locales';
 
 const fireKey = (input: string, key: Record<string, boolean>) => {
   act(() => {
@@ -55,7 +55,7 @@ describe('useLanguage', () => {
     const { result } = renderHook(() => useLanguage());
     fireKey('l', { ctrl: true });
     fireKey('', { upArrow: true });
-    expect(result.current.selectorIndex).toBe(2);
+    expect(result.current.selectorIndex).toBe(languages.length - 1);
     fireKey('', { downArrow: true });
     expect(result.current.selectorIndex).toBe(0);
   });
@@ -71,6 +71,28 @@ describe('useLanguage', () => {
     expect(configMocks.saveConfig).toHaveBeenCalledWith({ language: 'fr' });
     expect(result.current.language).toBe('fr');
     expect(getLanguage()).toBe('fr');
+  });
+
+  it('should keep the stored theme when persisting the language', () => {
+    configMocks.loadConfig.mockReturnValue({
+      language: 'en',
+      theme: 'sunset',
+    });
+    const { result } = renderHook(() => useLanguage());
+    fireKey('l', { ctrl: true });
+    fireKey('', { return: true });
+
+    expect(configMocks.saveConfig).toHaveBeenCalledWith({
+      language: 'en',
+      theme: 'sunset',
+    });
+    expect(result.current.showSelector).toBe(false);
+  });
+
+  it('should not react to Ctrl+L when the hotkey is disabled', () => {
+    const { result } = renderHook(() => useLanguage({ enableHotkey: false }));
+    fireKey('l', { ctrl: true });
+    expect(result.current.showSelector).toBe(false);
   });
 
   it('should cancel the selector with Esc without saving', () => {

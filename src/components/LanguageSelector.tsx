@@ -1,23 +1,26 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import { languages, getLanguageName, t } from '../locales';
+import type { ThemeColors } from '../utils/themes';
 
 interface LanguageSelectorProps {
   selectorIndex: number;
+  colors: ThemeColors;
 }
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   selectorIndex,
+  colors,
 }) => {
   return (
     <Box
       flexDirection="column"
       borderStyle="round"
-      borderColor="cyan"
+      borderColor={colors.border}
       padding={1}
       width={36}
     >
-      <Text bold color="cyan">
+      <Text bold color={colors.title}>
         {' '}
         {t('languageSelector.title')}{' '}
       </Text>
@@ -29,7 +32,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       </Text>
       <Text> </Text>
       {languages.map((lang, index) => (
-        <Text key={lang}>
+        <Text key={lang} color={colors.selected}>
           {index === selectorIndex ? '▶ ' : '  '}
           {getLanguageName(lang)}
         </Text>

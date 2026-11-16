@@ -1,0 +1,55 @@
+{
+  "menu": {
+    "title": "Menu Calcolatrice",
+    "sum": "Sommare due numeri",
+    "sub": "Sottrarre due numeri",
+    "mul": "Moltiplicare due numeri",
+    "div": "Dividere due numeri",
+    "expression": "Espressione libera",
+    "exit": "Esci",
+    "navHelp": "Usa ↑/↓ per navigare, Invio per selezionare"
+  },
+  "input": {
+    "sumTitle": "SOMMA",
+    "subTitle": "SOTTRAZIONE",
+    "mulTitle": "MOLTIPLICAZIONE",
+    "divTitle": "DIVISIONE",
+    "firstNumber": "Primo numero",
+    "secondNumber": "Secondo numero",
+    "switchHelp": "Digita i numeri, ↑/↓ per cambiare campo, Invio per aggiungere, Esc per tornare",
+    "expressionTitle": "ESPRESSIONE LIBERA",
+    "expressionLabel": "Espressione",
+    "expressionHelp": "Digita un'espressione matematica (es. 3 + 5 * 2), ←/→ per spostare il cursore, Invio per aggiungere, Esc per tornare",
+    "result": "{a} {op} {b} = {result}",
+    "historyLabel": "Cronologia:",
+    "errorDivZero": "Errore: divisione per zero",
+    "errorInvalidExpression": "Errore: espressione non valida",
+    "copyHint": "Ctrl+Y per copiare il risultato",
+    "copySuccess": "Copiato negli appunti!",
+    "copyError": "Copia non riuscita"
+  },
+  "languageSelector": {
+    "title": "Seleziona la lingua",
+    "current": "Attuale: {lang}",
+    "help": "Usa ↑/↓ per selezionare, Invio per confermare, Esc per annullare",
+    "languages": {
+      "en": "Inglese",
+      "es": "Spagnolo",
+      "fr": "Francese",
+      "de": "Tedesco",
+      "it": "Italiano"
+    }
+  },
+  "themeSelector": {
+    "title": "Seleziona tema",
+    "current": "Attuale: {theme}",
+    "help": "Usa ↑/↓ per selezionare, Invio per confermare, Esc per annullare",
+    "hint": "Ctrl+L lingua · Ctrl+T tema",
+    "themes": {
+      "ocean": "Oceano",
+      "forest": "Foresta",
+      "sunset": "Tramonto",
+      "mono": "Mono"
+    }
+  }
+}
