@@ -1,0 +1,43 @@
+{
+  "menu": {
+    "title": "Rechner-Menü",
+    "sum": "Zwei Zahlen addieren",
+    "sub": "Zwei Zahlen subtrahieren",
+    "mul": "Zwei Zahlen multiplizieren",
+    "div": "Zwei Zahlen dividieren",
+    "expression": "Freier Ausdruck",
+    "exit": "Beenden",
+    "navHelp": "↑/↓ zum Navigieren, Enter zum Auswählen"
+  },
+  "input": {
+    "sumTitle": "SUMME",
+    "subTitle": "DIFFERENZ",
+    "mulTitle": "PRODUKT",
+    "divTitle": "QUOTIENT",
+    "firstNumber": "Erste Zahl",
+    "secondNumber": "Zweite Zahl",
+    "switchHelp": "Zahlen eingeben, ↑/↓ zum Feldwechsel, Enter zum Hinzufügen, Esc zum Zurück",
+    "expressionTitle": "FREIER AUSDRUCK",
+    "expressionLabel": "Ausdruck",
+    "expressionHelp": "Mathematischen Ausdruck eingeben (z. B. 3 + 5 * 2), ←/→ zum Bewegen des Cursors, Enter zum Hinzufügen, Esc zum Zurück",
+    "result": "{a} {op} {b} = {result}",
+    "historyLabel": "Verlauf:",
+    "errorDivZero": "Fehler: Division durch null",
+    "errorInvalidExpression": "Fehler: ungültiger Ausdruck",
+    "copyHint": "Strg+Y zum Kopieren des Ergebnisses",
+    "copySuccess": "In die Zwischenablage kopiert!",
+    "copyError": "Kopieren fehlgeschlagen"
+  },
+  "languageSelector": {
+    "title": "Sprache auswählen",
+    "current": "Aktuell: {lang}",
+    "help": "↑/↓ zum Auswählen, Enter zum Bestätigen, Esc zum Abbrechen",
+    "languages": {
+      "en": "Englisch",
+      "es": "Spanisch",
+      "fr": "Französisch",
+      "de": "Deutsch",
+      "it": "Italienisch"
+    }
+  }
+}

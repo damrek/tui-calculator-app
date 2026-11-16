@@ -232,7 +232,9 @@ src/
 │   ├── index.ts         # Translation loader and t() helper
 │   ├── en.json          # English translations
 │   ├── es.json          # Spanish translations
-│   └── fr.json          # French translations
+│   ├── fr.json          # French translations
+│   ├── de.json          # German translations
+│   └── it.json          # Italian translations
 └── utils/
     ├── calculator.ts    # Calculation logic (calculate, parseInput, Operation)
     ├── expression.ts    # Expression evaluation (expr-eval) and input validation

@@ -17,7 +17,7 @@ A Terminal User Interface (TUI) Calculator application built with Ink (React for
 - Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
 - Copy result to clipboard with **Ctrl+Y** (copies the full expression, e.g. `5 + 3 = 8`)
 - Clean, responsive terminal UI
-- Multi-language support (English, Español, Français) with persistent preference
+- Multi-language support (English, Español, Français, Deutsch, Italiano) with persistent preference
 
 ## Language Support
 
@@ -26,6 +26,8 @@ The calculator supports multiple languages:
 - **English** (default)
 - **Español** (Spanish)
 - **Français** (French)
+- **Deutsch** (German)
+- **Italiano** (Italian)
 
 ### Switching Languages
 
@@ -56,7 +58,9 @@ src/
 │   ├── index.ts         # Translation loader and t() helper
 │   ├── en.json          # English translations
 │   ├── es.json          # Spanish translations
-│   └── fr.json          # French translations
+│   ├── fr.json          # French translations
+│   ├── de.json          # German translations
+│   └── it.json          # Italian translations
 └── utils/
     ├── calculator.ts    # Calculation logic
     ├── expression.ts    # Free expression evaluation (expr-eval)

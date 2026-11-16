@@ -21,6 +21,7 @@ vi.mock('fs', () => ({
 }));
 
 import { loadConfig, saveConfig } from '../config';
+import { languages } from '../../locales';
 
 describe('loadConfig', () => {
   beforeEach(() => {
@@ -37,6 +38,14 @@ describe('loadConfig', () => {
     mocks.existsSync.mockReturnValue(true);
     mocks.readFileSync.mockReturnValue('{"language":"es"}');
     expect(loadConfig()).toEqual({ language: 'es' });
+  });
+
+  it('should accept every language exposed by the locale module', () => {
+    mocks.existsSync.mockReturnValue(true);
+    for (const language of languages) {
+      mocks.readFileSync.mockReturnValue(JSON.stringify({ language }));
+      expect(loadConfig()).toEqual({ language });
+    }
   });
 
   it('should return default english for an unknown language', () => {

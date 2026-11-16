@@ -43,7 +43,32 @@ describe('locales', () => {
   });
 
   it('should expose all languages', () => {
-    expect(languages).toEqual(['en', 'es', 'fr']);
+    expect(languages).toEqual(['en', 'es', 'fr', 'de', 'it']);
+  });
+
+  it('should switch to german and translate its labels', () => {
+    setLanguage('de');
+    expect(getLanguage()).toBe('de');
+    expect(t('menu.title')).toBe('Rechner-Menü');
+    expect(t('menu.expression')).toBe('Freier Ausdruck');
+    expect(t('input.firstNumber')).toBe('Erste Zahl');
+  });
+
+  it('should switch to italian and translate its labels', () => {
+    setLanguage('it');
+    expect(getLanguage()).toBe('it');
+    expect(t('menu.title')).toBe('Menu Calcolatrice');
+    expect(t('menu.expression')).toBe('Espressione libera');
+    expect(t('input.firstNumber')).toBe('Primo numero');
+  });
+
+  it('should return the localized language name in german and italian', () => {
+    setLanguage('de');
+    expect(getLanguageName('de')).toBe('Deutsch');
+    expect(getLanguageName('it')).toBe('Italienisch');
+    setLanguage('it');
+    expect(getLanguageName('de')).toBe('Tedesco');
+    expect(getLanguageName('it')).toBe('Italiano');
   });
 
   it('should return the localized language name', () => {
