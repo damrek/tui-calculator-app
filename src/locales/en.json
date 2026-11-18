@@ -18,6 +18,7 @@
     "divTitle": "DIVIDE",
     "firstNumber": "First number",
     "secondNumber": "Second number",
+    "empty": "(empty)",
     "switchHelp": "Type numbers, ↑/↓ to switch input, Enter to add, Esc to go back",
     "expressionTitle": "FREE EXPRESSION",
     "expressionLabel": "Expression",

@@ -113,4 +113,11 @@ describe('locales', () => {
       expect(t('menu.historyCleared')).not.toBe('menu.historyCleared');
     }
   });
+
+  it('should translate the empty-input placeholder in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      expect(t('input.empty')).not.toBe('input.empty');
+    }
+  });
 });

@@ -801,4 +801,37 @@ describe('useAppInput', () => {
       expect(result.current.state.historyCleared).toBe(false);
     });
   });
+
+  describe('screen transitions', () => {
+    it('should not leak the previous result when re-entering an operation screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+      fillBinaryInput('3', '5');
+      expect(result.current.state.result).toBe(8);
+
+      fireKey('', { escape: true });
+      goToSumScreen();
+
+      expect(result.current.state.screen).toBe('input-sum');
+      expect(result.current.state.result).toBeUndefined();
+      expect(result.current.state.error).toBeUndefined();
+    });
+
+    it('should not leak the previous result onto another operation screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+      fillBinaryInput('3', '5');
+      expect(result.current.state.result).toBe(8);
+
+      fireKey('', { escape: true });
+      for (let i = 0; i < 3; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('input-div');
+      expect(result.current.state.result).toBeUndefined();
+      expect(result.current.state.error).toBeUndefined();
+    });
+  });
 });

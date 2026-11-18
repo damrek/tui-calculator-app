@@ -18,6 +18,7 @@
     "divTitle": "DIVISIÓN",
     "firstNumber": "Primer número",
     "secondNumber": "Segundo número",
+    "empty": "(vacío)",
     "switchHelp": "Escriba números, ↑/↓ para cambiar, Enter para agregar, Esc para volver",
     "expressionTitle": "EXPRESIÓN LIBRE",
     "expressionLabel": "Expresión",

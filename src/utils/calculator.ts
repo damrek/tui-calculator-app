@@ -1,5 +1,8 @@
 export type Operation = 'sum' | 'sub' | 'mul' | 'div';
 
+/** Shared error contract: matched by callers to localize the message. */
+export const DIVISION_BY_ZERO_ERROR = 'Error: division by zero';
+
 export const getOperationSymbol = (
   operation: Operation | null | undefined
 ): string => {
@@ -46,7 +49,7 @@ export const calculate = (
       return { result: a * b };
     case 'div':
       if (b === 0) {
-        return { error: 'Error: division by zero' };
+        return { error: DIVISION_BY_ZERO_ERROR };
       }
       return { result: a / b };
   }
