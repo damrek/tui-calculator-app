@@ -9,7 +9,7 @@ A terminal calculator built with [Ink](https://github.com/vadimdemedes/ink) (Rea
 - Editable input with a visible cursor — move with ←/→, insert or backspace at any position
 - Smart input validation (input masking) — invalid entries like `1.2.3`, `5-`, or doubled signs are rejected as you type
 - Division by zero handled gracefully with an error message instead of a crash
-- History of the last 5 operations, shown inline below the result
+- History of the last 5 operations, shown inline below the result and persisted across sessions in `~/.calculator/history.json`
 - Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
 - Copy the full expression (`5 + 3 = 8`) to the clipboard
 - Five languages and four themes, both persisted across sessions
@@ -106,6 +106,7 @@ src/
     ├── expression.ts         # Expression evaluation (expr-eval) and input validation
     ├── themes.ts             # Theme names and color palettes
     ├── config.ts             # Config read/write (~/.calculator/config.json)
+    ├── history.ts            # History entries, FIFO append, and persistence (~/.calculator/history.json)
     ├── clipboard.ts          # Clipboard wrapper (clipboardy)
     ├── keystrokes.ts         # Splits batched stdin chunks into single keystrokes
     └── __tests__/            # Logic tests (calculator, expression, validation,

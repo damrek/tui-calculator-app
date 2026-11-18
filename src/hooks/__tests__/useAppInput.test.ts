@@ -24,6 +24,20 @@ vi.mock('../../utils/clipboard', () => ({
   copyToClipboard: clipboardMocks.copyToClipboard,
 }));
 
+const historyMocks = vi.hoisted(() => ({
+  loadHistory: vi.fn<() => unknown[]>(() => []),
+  saveHistory: vi.fn(),
+}));
+
+vi.mock('../../utils/history', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/history')>();
+  return {
+    ...actual,
+    loadHistory: historyMocks.loadHistory,
+    saveHistory: historyMocks.saveHistory,
+  };
+});
+
 import { useAppInput, MAX_HISTORY } from '../useAppInput';
 
 const fireKey = (input: string, key: Record<string, boolean>) => {
@@ -655,6 +669,63 @@ describe('useAppInput', () => {
           expression: '6+6',
           result: 12,
         });
+      });
+    });
+
+    describe('history persistence', () => {
+      beforeEach(() => {
+        historyMocks.loadHistory.mockReturnValue([]);
+        historyMocks.saveHistory.mockClear();
+      });
+
+      it('should seed the initial history from disk', () => {
+        historyMocks.loadHistory.mockReturnValue([
+          { kind: 'expression', expression: '2 + 2', result: 4 },
+        ]);
+
+        const { result } = renderHook(() => useAppInput());
+
+        expect(result.current.state.history).toEqual([
+          { kind: 'expression', expression: '2 + 2', result: 4 },
+        ]);
+      });
+
+      it('should persist the history when an expression is committed', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression('3 + 5');
+
+        pressEnter();
+
+        expect(result.current.state.history).toHaveLength(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledTimes(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledWith([
+          { kind: 'expression', expression: '3 + 5', result: 8 },
+        ]);
+      });
+
+      it('should persist the history when a calculation is committed', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        fillBinaryInput('5', '3');
+
+        pressEnter();
+
+        expect(result.current.state.history).toHaveLength(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledTimes(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledWith([
+          { kind: 'calculation', a: 5, b: 3, operation: 'sum', result: 8 },
+        ]);
+      });
+
+      it('should not save when Enter does not commit anything', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+
+        pressEnter();
+
+        expect(result.current.state.history).toEqual([]);
+        expect(historyMocks.saveHistory).not.toHaveBeenCalled();
       });
     });
   });

@@ -6,7 +6,7 @@ import type { Language } from '../locales';
 import { defaultTheme, isThemeName } from './themes';
 import type { ThemeName } from './themes';
 
-const CONFIG_DIR = join(homedir(), '.calculator');
+export const CONFIG_DIR = join(homedir(), '.calculator');
 const CONFIG_FILE = join(CONFIG_DIR, 'config.json');
 
 export interface Config {
@@ -21,7 +21,7 @@ function isLanguage(value: unknown): value is Language {
   );
 }
 
-function ensureConfigDir(): void {
+export function ensureConfigDir(): void {
   if (!existsSync(CONFIG_DIR)) {
     mkdirSync(CONFIG_DIR, { recursive: true });
   }

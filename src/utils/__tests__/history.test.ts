@@ -1,10 +1,33 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const fsMocks = vi.hoisted(() => ({
+  existsSync: vi.fn(),
+  readFileSync: vi.fn(),
+  writeFileSync: vi.fn(),
+  mkdirSync: vi.fn(),
+}));
+
+vi.mock('fs', () => ({
+  default: {
+    existsSync: fsMocks.existsSync,
+    readFileSync: fsMocks.readFileSync,
+    writeFileSync: fsMocks.writeFileSync,
+    mkdirSync: fsMocks.mkdirSync,
+  },
+  existsSync: fsMocks.existsSync,
+  readFileSync: fsMocks.readFileSync,
+  writeFileSync: fsMocks.writeFileSync,
+  mkdirSync: fsMocks.mkdirSync,
+}));
+
 import {
-  HistoryEntry,
-  AppState,
+  loadHistory,
+  saveHistory,
   appendHistory,
   MAX_HISTORY,
-} from '../../hooks/useAppInput';
+} from '../history';
+import type { HistoryEntry } from '../history';
+import type { AppState as HookAppState } from '../../hooks/useAppInput';
 import { Operation } from '../calculator';
 
 const makeCalculation = (
@@ -20,7 +43,7 @@ const makeExpression = (expression: string, result: number): HistoryEntry => ({
   result,
 });
 
-const baseState: AppState = {
+const baseState: HookAppState = {
   screen: 'menu',
   selectedIndex: 0,
   inputIndex: 0,
@@ -139,13 +162,121 @@ describe('History FIFO behavior', () => {
   });
 });
 
+describe('loadHistory', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should return an empty array when the history file does not exist', () => {
+    fsMocks.existsSync.mockReturnValue(false);
+    expect(loadHistory()).toEqual([]);
+    expect(fsMocks.readFileSync).not.toHaveBeenCalled();
+  });
+
+  it('should load valid calculation and expression entries', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    fsMocks.readFileSync.mockReturnValue(
+      JSON.stringify([
+        makeCalculation(3, 5, 'sum', 8),
+        makeExpression('3 + 5 * 2', 13),
+      ])
+    );
+    expect(loadHistory()).toEqual([
+      makeCalculation(3, 5, 'sum', 8),
+      makeExpression('3 + 5 * 2', 13),
+    ]);
+  });
+
+  it('should drop invalid entries and keep valid ones', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    fsMocks.readFileSync.mockReturnValue(
+      JSON.stringify([
+        makeCalculation(3, 5, 'sum', 8),
+        { kind: 'expression', expression: 'missing result' },
+        { kind: 'calculation', a: 1, b: 2, operation: 'modulo', result: 3 },
+        { kind: 'unknown' },
+        'not an object',
+        makeExpression('10/4', 2.5),
+      ])
+    );
+    expect(loadHistory()).toEqual([
+      makeCalculation(3, 5, 'sum', 8),
+      makeExpression('10/4', 2.5),
+    ]);
+  });
+
+  it('should return an empty array on corrupt JSON', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    fsMocks.readFileSync.mockReturnValue('{not valid json');
+    expect(loadHistory()).toEqual([]);
+  });
+
+  it('should return an empty array when the file is not a JSON array', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    fsMocks.readFileSync.mockReturnValue('{"language":"es"}');
+    expect(loadHistory()).toEqual([]);
+  });
+
+  it('should keep only the last MAX_HISTORY entries from disk', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    const entries: HistoryEntry[] = [];
+    for (let i = 0; i < MAX_HISTORY + 2; i++) {
+      entries.push(makeCalculation(i, 1, 'sum', i + 1));
+    }
+    fsMocks.readFileSync.mockReturnValue(JSON.stringify(entries));
+
+    const loaded = loadHistory();
+
+    expect(loaded).toHaveLength(MAX_HISTORY);
+    expect(loaded[0]).toEqual(makeCalculation(2, 1, 'sum', 3));
+  });
+});
+
+describe('saveHistory', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should write the history as JSON to the history file', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    const history = [makeCalculation(2, 3, 'mul', 6)];
+
+    saveHistory(history);
+
+    expect(fsMocks.writeFileSync).toHaveBeenCalledTimes(1);
+    const [path, content] = fsMocks.writeFileSync.mock.calls[0];
+    expect(String(path)).toContain('history.json');
+    expect(JSON.parse(content as string)).toEqual(history);
+  });
+
+  it('should create the config directory when it does not exist', () => {
+    fsMocks.existsSync.mockReturnValue(false);
+
+    saveHistory([]);
+
+    expect(fsMocks.mkdirSync).toHaveBeenCalledWith(expect.any(String), {
+      recursive: true,
+    });
+    expect(fsMocks.writeFileSync).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not throw when the write fails', () => {
+    fsMocks.existsSync.mockReturnValue(true);
+    fsMocks.writeFileSync.mockImplementation(() => {
+      throw new Error('EACCES');
+    });
+
+    expect(() => saveHistory([])).not.toThrow();
+  });
+});
+
 describe('AppState with history', () => {
   it('should initialize with empty history', () => {
     expect(baseState.history).toEqual([]);
   });
 
   it('should allow adding entries to history', () => {
-    const state: AppState = { ...baseState };
+    const state: HookAppState = { ...baseState };
     const entry = makeCalculation(2, 3, 'mul', 6);
     state.history = [...state.history, entry];
     expect(state.history).toHaveLength(1);

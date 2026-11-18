@@ -251,6 +251,7 @@ A division by zero sets an error message in the state (localized via `t()`) inst
 
 - Use functional updates: `setState(s => ({ ...s, ... }))`
 - Initialize all state properties explicitly
+- History persists across sessions: `loadHistory()` seeds the state once on mount, and `saveHistory()` writes after every committed operation — both live in `src/utils/history.ts` and follow the `config.ts` pattern (sync fs, validate on load, swallow errors)
 
 ### Clipboard
 
@@ -274,7 +275,7 @@ src/
 │   ├── ThemeSelector.tsx     # Theme selector modal overlay
 │   └── __tests__/            # Component tests (selectors)
 ├── hooks/
-│   ├── useAppInput.ts        # App state, input handling, history (appendHistory)
+│   ├── useAppInput.ts        # App state, input handling; persists history via utils/history
 │   ├── useLanguage.ts        # Language state, Ctrl+L handler, selector logic
 │   ├── useTheme.ts           # Theme state, Ctrl+T handler, selector logic
 │   └── __tests__/            # Hook tests (useAppInput, useLanguage, useTheme)
@@ -291,6 +292,7 @@ src/
     ├── expression.ts         # Expression evaluation (expr-eval) and input validation
     ├── themes.ts             # Theme names and color palettes
     ├── config.ts             # Config read/write (~/.calculator/config.json)
+    ├── history.ts            # HistoryEntry, appendHistory, load/save (~/.calculator/history.json)
     ├── clipboard.ts          # Clipboard wrapper (copyToClipboard, never throws)
     ├── keystrokes.ts         # splitKeystrokes — splits batched stdin chunks
     └── __tests__/            # Logic tests (calculator, expression, validation,

@@ -14,7 +14,12 @@ import {
 } from '../utils/expression';
 import { copyToClipboard } from '../utils/clipboard';
 import { splitKeystrokes } from '../utils/keystrokes';
+import { loadHistory, saveHistory, appendHistory } from '../utils/history';
+import type { HistoryEntry } from '../utils/history';
 import { t } from '../locales';
+
+export { appendHistory, MAX_HISTORY } from '../utils/history';
+export type { HistoryEntry } from '../utils/history';
 
 type Screen =
   | 'menu'
@@ -23,16 +28,6 @@ type Screen =
   | 'input-mul'
   | 'input-div'
   | 'input-expression';
-
-export type HistoryEntry =
-  | {
-      kind: 'calculation';
-      a: number;
-      b: number;
-      operation: Operation;
-      result: number;
-    }
-  | { kind: 'expression'; expression: string; result: number };
 
 export interface AppState {
   screen: Screen;
@@ -48,7 +43,6 @@ export interface AppState {
   copyFeedback: 'copied' | 'copy-failed' | null;
 }
 
-export const MAX_HISTORY = 5;
 const MENU_OPTIONS = 6;
 const COPY_FEEDBACK_TIMEOUT = 1500;
 
@@ -129,11 +123,6 @@ const calculateExpressionResult = (
   return { result: output.result, error: undefined };
 };
 
-export const appendHistory = (
-  history: HistoryEntry[],
-  entry: HistoryEntry
-): HistoryEntry[] => [...history, entry].slice(-MAX_HISTORY);
-
 export const useAppInput = (options?: { inputEnabled?: boolean }) => {
   const isActive = options?.inputEnabled ?? true;
   const [state, setState] = useState<AppState>({
@@ -144,7 +133,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     expressionInput: '',
     expressionCursor: 0,
     operation: null,
-    history: [],
+    history: loadHistory(),
     copyFeedback: null,
   });
 
@@ -327,18 +316,20 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           return;
         }
         const result = state.result;
+        const entry: HistoryEntry = {
+          kind: 'calculation',
+          a: parseInput(inputs[0]),
+          b: parseInput(inputs[1]),
+          operation,
+          result,
+        };
+        saveHistory(appendHistory(state.history, entry));
         setState((s: AppState) => ({
           ...s,
           inputs: ['', ''],
           inputIndex: 0,
           ...calculateResult(['', ''], s.operation),
-          history: appendHistory(s.history, {
-            kind: 'calculation',
-            a: parseInput(inputs[0]),
-            b: parseInput(inputs[1]),
-            operation,
-            result,
-          }),
+          history: appendHistory(s.history, entry),
         }));
         return;
       }
@@ -412,16 +403,18 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           return;
         }
         const result = state.result;
+        const entry: HistoryEntry = {
+          kind: 'expression',
+          expression,
+          result,
+        };
+        saveHistory(appendHistory(state.history, entry));
         setState((s: AppState) => ({
           ...s,
           expressionInput: '',
           expressionCursor: 0,
           ...calculateExpressionResult(''),
-          history: appendHistory(s.history, {
-            kind: 'expression',
-            expression,
-            result,
-          }),
+          history: appendHistory(s.history, entry),
         }));
         return;
       }
