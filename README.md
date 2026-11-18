@@ -1,205 +1,135 @@
 # TUI Calculator App
 
-A Terminal User Interface (TUI) Calculator application built with Ink (React for CLIs) and TypeScript.
+A terminal calculator built with [Ink](https://github.com/vadimdemedes/ink) (React for CLIs) and TypeScript. It covers the four basic operations plus a free expression mode with live results, five languages, and four color themes — all without leaving the keyboard.
 
 ## Features
 
-- Interactive terminal-based calculator interface
-- Built with React-like components using Ink
-- TypeScript for type safety
-- Multiple calculation modes (sum, subtract, multiply, divide)
-- Free expression mode (e.g. `3 + 5 * 2` with parentheses) with live result
-- Editable expression input — visible cursor, ←/→ to move, insert and backspace at any position
-- Division by zero error handling
-- Live result updates as you type (no need to press "continue")
-- Smart input validation (input masking) — prevents invalid entries like `1.2.3`, `5-`, or double signs
-- Recent calculation history — last 5 operations tracked in-memory and shown inline below the result
+- Four operation modes: sum, subtract, multiply, divide
+- Free expression mode (`3 + 5 * 2`) with parentheses, evaluated live as you type — no need to press "continue"
+- Editable input with a visible cursor — move with ←/→, insert or backspace at any position
+- Smart input validation (input masking) — invalid entries like `1.2.3`, `5-`, or doubled signs are rejected as you type
+- Division by zero handled gracefully with an error message instead of a crash
+- History of the last 5 operations, shown inline below the result
 - Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
-- Copy result to clipboard with **Ctrl+Y** (copies the full expression, e.g. `5 + 3 = 8`)
-- Clean, responsive terminal UI
-- Multi-language support (English, Español, Français, Deutsch, Italiano) with persistent preference
-- Four color themes (Ocean, Forest, Sunset, Mono) with persistent preference
+- Copy the full expression (`5 + 3 = 8`) to the clipboard
+- Five languages and four themes, both persisted across sessions
 
-## Language Support
+## Keyboard Shortcuts
 
-The calculator supports multiple languages:
+| Key | Action |
+| --- | --- |
+| ↑ / ↓ | Navigate the menu or a selector |
+| ← / → | Move the input cursor |
+| Enter | Confirm a choice / save to history |
+| Esc | Go back / cancel |
+| Ctrl+Y | Copy the result to the clipboard |
+| Ctrl+L | Open the language selector |
+| Ctrl+T | Open the theme selector |
+| Ctrl+C | Quit |
 
-- **English** (default)
-- **Español** (Spanish)
-- **Français** (French)
-- **Deutsch** (German)
-- **Italiano** (Italian)
+The footer of every screen shows the two selector shortcuts: `Ctrl+L` for language, `Ctrl+T` for theme.
 
-### Switching Languages
+## Languages
 
-Press **Ctrl+L** anywhere in the app to open the language selector modal.
-Use ↑/↓ to choose a language, Enter to confirm, Esc to cancel.
+English (default), Español, Français, Deutsch, Italiano.
 
-Your preference is saved to `~/.calculator/config.json` and persists across sessions.
+Press **Ctrl+L** anywhere to open the language selector. Use ↑/↓ to choose, Enter to confirm, Esc to cancel. Your choice is saved to `~/.calculator/config.json` and persists across sessions.
 
 ## Themes
 
-Press **Ctrl+T** anywhere in the app to open the theme selector.
-Use ↑/↓ to choose a theme, Enter to confirm, Esc to cancel.
+Press **Ctrl+T** anywhere to open the theme selector. The chosen theme is stored next to the language in `~/.calculator/config.json`.
 
-- **Ocean** (default) — cyan borders with green highlights
-- **Forest** — green borders with bright green highlights
-- **Sunset** — magenta borders with yellow highlights
-- **Mono** — grayscale borders with white highlights
+| Theme | Look |
+| --- | --- |
+| Ocean (default) | Cyan borders with green highlights |
+| Forest | Green borders with bright green highlights |
+| Sunset | Magenta borders with yellow highlights |
+| Mono | Grayscale borders with white highlights |
 
-The chosen theme is stored next to the language in `~/.calculator/config.json`.
-The footer of every screen shows both shortcuts: `Ctrl+L` for language, `Ctrl+T` for theme.
-
-> **Note**: On Linux, copying to clipboard requires `xclip`, `xsel`, or `wl-copy` to be installed. If missing, the app shows a "Copy failed" notice instead of crashing.
+> **Note**: On Linux, copying to the clipboard requires `xclip`, `xsel`, or `wl-copy` to be installed. If none is present, the app shows a "Copy failed" notice instead of crashing.
 
 ## Screenshots
 
 <img width="478" height="258" alt="tui-calculator1" src="https://github.com/user-attachments/assets/0d3f25bf-59be-4e64-a120-3e686ea13f77" />
 <img width="478" height="258" alt="tui-calculator2" src="https://github.com/user-attachments/assets/53616c73-ee5f-4ca4-a6ff-a362b041f6c6" />
 
-## Project Structure
+## Getting Started
 
-```
-src/
-├── App.tsx              # Main application component (rendering only)
-├── index.tsx            # Entry point (renders App)
-├── components/
-│   ├── LanguageSelector.tsx  # Language selector modal overlay
-│   └── ThemeSelector.tsx     # Theme selector modal overlay
-├── hooks/
-│   ├── useAppInput.ts   # Custom hook with state and input handling
-│   ├── useLanguage.ts   # Language state, Ctrl+L handler, selector logic
-│   └── useTheme.ts      # Theme state, Ctrl+T handler, selector logic
-├── locales/
-│   ├── index.ts         # Translation loader and t() helper
-│   ├── en.json          # English translations
-│   ├── es.json          # Spanish translations
-│   ├── fr.json          # French translations
-│   ├── de.json          # German translations
-│   └── it.json          # Italian translations
-└── utils/
-    ├── calculator.ts    # Calculation logic
-    ├── expression.ts    # Free expression evaluation (expr-eval)
-    ├── themes.ts        # Theme names and color palettes
-    ├── config.ts        # Config file read/write (~/.calculator/config.json)
-    ├── clipboard.ts     # Clipboard wrapper (ClipboardY)
-    └── __tests__/       # Vitest tests (calculator, expression, validation, history, config, clipboard, themes)
+**Requirements**: Node.js 18+ (currently developed on Node 24). Building standalone binaries additionally requires [Bun](https://bun.sh).
+
+```bash
+npm install
+npm run dev   # runs the app directly from source — no build needed
 ```
 
 ## Commands
 
-### Build & Run
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Run the app from source |
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm run start` | Run the compiled app from `dist/` (build first) |
+| `npm run lint` | Run ESLint on `src/` |
+| `npm run format` | Format code with Prettier |
+| `npm test` | Run tests in watch mode |
+| `npm run test:run` | Run tests once |
+| `npm run test:coverage` | Run tests with a coverage report |
+| `npm run dist` | Build and compile standalone binaries for Linux, Windows, and macOS |
 
-```bash
-npm run build     # Compile TypeScript to dist/
-npm run start     # Run the compiled app
-npm run dev       # Build and run in one command
+Tests use [Vitest](https://vitest.dev) with happy-dom and live in the `__tests__/` directories next to the code they cover (`src/utils/`, `src/hooks/`, `src/components/`, `src/locales/`).
+
+## Project Structure
+
+```
+src/
+├── App.tsx                   # Main application component (rendering only)
+├── index.tsx                 # Entry point (renders App)
+├── components/
+│   ├── LanguageSelector.tsx  # Language selector modal overlay
+│   ├── ThemeSelector.tsx     # Theme selector modal overlay
+│   └── __tests__/            # Component tests
+├── hooks/
+│   ├── useAppInput.ts        # App state, input handling, history
+│   ├── useLanguage.ts        # Language state, Ctrl+L handler, selector logic
+│   ├── useTheme.ts           # Theme state, Ctrl+T handler, selector logic
+│   └── __tests__/            # Hook tests
+├── locales/
+│   ├── index.ts              # Translation loader and t() helper
+│   ├── en.json               # English (default)
+│   ├── es.json               # Spanish
+│   ├── fr.json               # French
+│   ├── de.json               # German
+│   ├── it.json               # Italian
+│   └── __tests__/            # Locale tests
+└── utils/
+    ├── calculator.ts         # Calculation logic (calculate, parseInput, Operation)
+    ├── expression.ts         # Expression evaluation (expr-eval) and input validation
+    ├── themes.ts             # Theme names and color palettes
+    ├── config.ts             # Config read/write (~/.calculator/config.json)
+    ├── clipboard.ts          # Clipboard wrapper (clipboardy)
+    ├── keystrokes.ts         # Splits batched stdin chunks into single keystrokes
+    └── __tests__/            # Logic tests (calculator, expression, validation,
+                              # history, config, clipboard, keystrokes, themes)
 ```
 
-### Linting & Formatting
+## Development
+
+Code style, React/Ink patterns, testing conventions, and commit guidelines live in [AGENTS.md](AGENTS.md). The project uses Husky with lint-staged, so every commit runs ESLint and Prettier on staged files automatically.
+
+## Distribution (Bun)
+
+With [Bun](https://bun.sh) installed:
 
 ```bash
-npm run lint      # Run ESLint on src/
-npm run format    # Format code with Prettier
-```
-
-### Testing
-
-```bash
-npm run test          # Run tests in watch mode
-npm run test:run      # Run tests once
-npm run test:coverage # Run with coverage report
-```
-
-Tests are located in `src/utils/__tests__/` and use Vitest with happy-dom.
-
-### Distribution (Bun)
-
-```bash
-npm run dist      # Build all binaries (Linux, Windows, macOS)
+npm run dist          # Build all binaries (Linux, Windows, macOS)
 npm run build:linux   # Linux x64
 npm run build:win     # Windows x64
 npm run build:mac     # macOS ARM
 ```
 
-Binaries are created in `dist/`:
-
-- `calculator-linux` - Linux executable
-- `calculator.exe` - Windows executable
-- `calculator-macos` - macOS executable (ARM)
-
-These are portable, standalone executables (no installation required).
-
-## Development Guidelines
-
-### TypeScript Configuration
-
-- Target: ES2020
-- JSX: react
-- Strict mode: enabled
-- Module resolution: bundler
-
-### Formatting (Prettier)
-
-- Semicolons: Yes
-- Single quotes: Yes
-- Tab width: 2 spaces
-- Trailing commas: es5 style
-
-Run `npm run format` before committing.
-
-### ESLint Rules
-
-- React JSX scope: disabled (use JSX without importing React)
-- No unused variables (errors)
-- TypeScript recommended rules enabled
-- React hooks rules enabled
-
-### Import Conventions
-
-1. React imports
-2. External libraries (ink)
-3. Internal imports (if any)
-4. Type definitions
-
-### Naming Conventions
-
-- Files: PascalCase for components (`App.tsx`, `Calculator.tsx`)
-- Variables & Functions: camelCase (`goToMenu`, `calculateResult`)
-- Components: PascalCase (`App`, `Menu`)
-- Interfaces: PascalCase with descriptive names (`AppState`, `KeyInput`)
-- Constants: UPPER_SNAKE_CASE for true constants, camelCase for configuration objects
-
-## Pre-commit Hooks
-
-The project uses Husky with lint-staged. On every `git commit`:
-
-- ESLint runs on staged `.ts` and `.tsx` files
-- Prettier formats staged files
-- If either fails, the commit is blocked
-
-Always run `npm run lint` and `npm run format` before committing, or let the pre-commit hook handle it automatically.
-
-## Node Version
-
-- Designed for Node.js 18+
-- Current development: Node 24
+Binaries are created in `dist/`: `calculator-linux`, `calculator.exe`, and `calculator-macos`. They are portable, standalone executables — no installation required.
 
 ## Dependencies
 
-### Production
-
-- ink
-- react
-- react-dom
-- react-devtools-core
-- expr-eval
-- clipboardy
-
-### Dev Dependencies
-
-- typescript
-- eslint
-- prettier
-- husky
-- lint-staged
+- **Production**: ink, react, react-dom, react-devtools-core, expr-eval, clipboardy
+- **Dev**: typescript, tsx, eslint, prettier, vitest, happy-dom, @testing-library/react, husky, lint-staged
