@@ -24,6 +24,20 @@ vi.mock('../../utils/clipboard', () => ({
   copyToClipboard: clipboardMocks.copyToClipboard,
 }));
 
+const historyMocks = vi.hoisted(() => ({
+  loadHistory: vi.fn<() => unknown[]>(() => []),
+  saveHistory: vi.fn(),
+}));
+
+vi.mock('../../utils/history', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../utils/history')>();
+  return {
+    ...actual,
+    loadHistory: historyMocks.loadHistory,
+    saveHistory: historyMocks.saveHistory,
+  };
+});
+
 import { useAppInput, MAX_HISTORY } from '../useAppInput';
 
 const fireKey = (input: string, key: Record<string, boolean>) => {
@@ -656,6 +670,168 @@ describe('useAppInput', () => {
           result: 12,
         });
       });
+    });
+
+    describe('history persistence', () => {
+      beforeEach(() => {
+        historyMocks.loadHistory.mockReturnValue([]);
+        historyMocks.saveHistory.mockClear();
+      });
+
+      it('should seed the initial history from disk', () => {
+        historyMocks.loadHistory.mockReturnValue([
+          { kind: 'expression', expression: '2 + 2', result: 4 },
+        ]);
+
+        const { result } = renderHook(() => useAppInput());
+
+        expect(result.current.state.history).toEqual([
+          { kind: 'expression', expression: '2 + 2', result: 4 },
+        ]);
+      });
+
+      it('should persist the history when an expression is committed', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+        typeExpression('3 + 5');
+
+        pressEnter();
+
+        expect(result.current.state.history).toHaveLength(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledTimes(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledWith([
+          { kind: 'expression', expression: '3 + 5', result: 8 },
+        ]);
+      });
+
+      it('should persist the history when a calculation is committed', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToSumScreen();
+        fillBinaryInput('5', '3');
+
+        pressEnter();
+
+        expect(result.current.state.history).toHaveLength(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledTimes(1);
+        expect(historyMocks.saveHistory).toHaveBeenCalledWith([
+          { kind: 'calculation', a: 5, b: 3, operation: 'sum', result: 8 },
+        ]);
+      });
+
+      it('should not save when Enter does not commit anything', () => {
+        const { result } = renderHook(() => useAppInput());
+        goToExpressionScreen();
+
+        pressEnter();
+
+        expect(result.current.state.history).toEqual([]);
+        expect(historyMocks.saveHistory).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe('clear history', () => {
+    beforeEach(() => {
+      historyMocks.loadHistory.mockReturnValue([]);
+      historyMocks.saveHistory.mockClear();
+    });
+
+    it('should clear the seeded history from the menu and persist the empty list', () => {
+      historyMocks.loadHistory.mockReturnValue([
+        { kind: 'expression', expression: '2 + 2', result: 4 },
+      ]);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('menu');
+      expect(result.current.state.history).toEqual([]);
+      expect(historyMocks.saveHistory).toHaveBeenCalledWith([]);
+    });
+
+    it('should keep Exit as the last menu option and still exit', () => {
+      const exitSpy = vi
+        .spyOn(process, 'exit')
+        .mockImplementation((() => undefined) as never);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 6; i++) {
+        fireKey('', { downArrow: true });
+      }
+      expect(result.current.state.selectedIndex).toBe(6);
+
+      fireKey('', { return: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(0);
+      exitSpy.mockRestore();
+    });
+
+    it('should flag the history as cleared after clearing', () => {
+      historyMocks.loadHistory.mockReturnValue([
+        { kind: 'expression', expression: '2 + 2', result: 4 },
+      ]);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.historyCleared).toBe(true);
+    });
+
+    it('should reset the cleared flag when navigating to a screen', () => {
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+      expect(result.current.state.historyCleared).toBe(true);
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { upArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('input-sum');
+      expect(result.current.state.historyCleared).toBe(false);
+    });
+  });
+
+  describe('screen transitions', () => {
+    it('should not leak the previous result when re-entering an operation screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+      fillBinaryInput('3', '5');
+      expect(result.current.state.result).toBe(8);
+
+      fireKey('', { escape: true });
+      goToSumScreen();
+
+      expect(result.current.state.screen).toBe('input-sum');
+      expect(result.current.state.result).toBeUndefined();
+      expect(result.current.state.error).toBeUndefined();
+    });
+
+    it('should not leak the previous result onto another operation screen', () => {
+      const { result } = renderHook(() => useAppInput());
+      goToSumScreen();
+      fillBinaryInput('3', '5');
+      expect(result.current.state.result).toBe(8);
+
+      fireKey('', { escape: true });
+      for (let i = 0; i < 3; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('input-div');
+      expect(result.current.state.result).toBeUndefined();
+      expect(result.current.state.error).toBeUndefined();
     });
   });
 });

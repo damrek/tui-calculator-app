@@ -6,6 +6,8 @@
     "mul": "Multiplier deux nombres",
     "div": "Diviser deux nombres",
     "expression": "Expression libre",
+    "clearHistory": "Effacer l'historique",
+    "historyCleared": "Historique effacé",
     "exit": "Quitter",
     "navHelp": "Utilisez ↑/↓ pour naviguer, Entrée pour sélectionner"
   },
@@ -16,6 +18,7 @@
     "divTitle": "DIVISION",
     "firstNumber": "Premier nombre",
     "secondNumber": "Deuxième nombre",
+    "empty": "(vide)",
     "switchHelp": "Entrez des nombres, ↑/↓ pour basculer, Entrée pour ajouter, Echap pour revenir",
     "expressionTitle": "EXPRESSION LIBRE",
     "expressionLabel": "Expression",

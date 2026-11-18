@@ -6,6 +6,8 @@
     "mul": "Zwei Zahlen multiplizieren",
     "div": "Zwei Zahlen dividieren",
     "expression": "Freier Ausdruck",
+    "clearHistory": "Verlauf löschen",
+    "historyCleared": "Verlauf gelöscht",
     "exit": "Beenden",
     "navHelp": "↑/↓ zum Navigieren, Enter zum Auswählen"
   },
@@ -16,6 +18,7 @@
     "divTitle": "QUOTIENT",
     "firstNumber": "Erste Zahl",
     "secondNumber": "Zweite Zahl",
+    "empty": "(leer)",
     "switchHelp": "Zahlen eingeben, ↑/↓ zum Feldwechsel, Enter zum Hinzufügen, Esc zum Zurück",
     "expressionTitle": "FREIER AUSDRUCK",
     "expressionLabel": "Ausdruck",

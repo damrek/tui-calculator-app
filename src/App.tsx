@@ -8,6 +8,21 @@ import { ThemeSelector } from './components/ThemeSelector';
 import { t } from './locales';
 import { getOperationSymbol } from './utils/calculator';
 
+interface MenuItem {
+  labelKey: string;
+  danger?: boolean;
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  { labelKey: 'menu.sum' },
+  { labelKey: 'menu.sub' },
+  { labelKey: 'menu.mul' },
+  { labelKey: 'menu.div' },
+  { labelKey: 'menu.expression' },
+  { labelKey: 'menu.clearHistory' },
+  { labelKey: 'menu.exit', danger: true },
+];
+
 const App: React.FC = () => {
   const language = useLanguage({ enableHotkey: false });
   const theme = useTheme({ enableHotkey: false });
@@ -81,47 +96,18 @@ const App: React.FC = () => {
         {t('menu.title')}
       </Text>
       <Text> </Text>
-      {state.selectedIndex === 0 ? (
-        <Text bold color={colors.selected}>
-          ▶ {t('menu.sum')}
-        </Text>
-      ) : (
-        <Text> {t('menu.sum')}</Text>
-      )}
-      {state.selectedIndex === 1 ? (
-        <Text bold color={colors.selected}>
-          ▶ {t('menu.sub')}
-        </Text>
-      ) : (
-        <Text> {t('menu.sub')}</Text>
-      )}
-      {state.selectedIndex === 2 ? (
-        <Text bold color={colors.selected}>
-          ▶ {t('menu.mul')}
-        </Text>
-      ) : (
-        <Text> {t('menu.mul')}</Text>
-      )}
-      {state.selectedIndex === 3 ? (
-        <Text bold color={colors.selected}>
-          ▶ {t('menu.div')}
-        </Text>
-      ) : (
-        <Text> {t('menu.div')}</Text>
-      )}
-      {state.selectedIndex === 4 ? (
-        <Text bold color={colors.selected}>
-          ▶ {t('menu.expression')}
-        </Text>
-      ) : (
-        <Text> {t('menu.expression')}</Text>
-      )}
-      {state.selectedIndex === 5 ? (
-        <Text bold color={colors.danger}>
-          ▶ {t('menu.exit')}
-        </Text>
-      ) : (
-        <Text> {t('menu.exit')}</Text>
+      {MENU_ITEMS.map((item, index) =>
+        state.selectedIndex === index ? (
+          <Text
+            key={item.labelKey}
+            bold
+            color={item.danger ? colors.danger : colors.selected}
+          >
+            ▶ {t(item.labelKey)}
+          </Text>
+        ) : (
+          <Text key={item.labelKey}> {t(item.labelKey)}</Text>
+        )
       )}
       <Text> </Text>
       <Text dimColor>{t('menu.navHelp')}</Text>
@@ -142,11 +128,11 @@ const App: React.FC = () => {
       <Box flexDirection="column">
         <Text>
           {state.inputIndex === 0 ? '▶ ' : '  '}
-          {t('input.firstNumber')}: {state.inputs[0] || '(empty)'}
+          {t('input.firstNumber')}: {state.inputs[0] || t('input.empty')}
         </Text>
         <Text>
           {state.inputIndex === 1 ? '▶ ' : '  '}
-          {t('input.secondNumber')}: {state.inputs[1] || '(empty)'}
+          {t('input.secondNumber')}: {state.inputs[1] || t('input.empty')}
         </Text>
       </Box>
       {(state.result !== undefined || state.error) && (
@@ -226,6 +212,11 @@ const App: React.FC = () => {
   return (
     <Box flexDirection="column" padding={1}>
       {state.screen === 'menu' && renderMenu()}
+      {state.screen === 'menu' && state.historyCleared && (
+        <Text bold color={colors.success}>
+          {t('menu.historyCleared')}
+        </Text>
+      )}
       {state.screen === 'input-sum' && renderInput()}
       {state.screen === 'input-sub' && renderInput()}
       {state.screen === 'input-mul' && renderInput()}

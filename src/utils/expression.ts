@@ -1,5 +1,5 @@
 import { Parser } from 'expr-eval';
-import { CalculateOutput } from './calculator';
+import { CalculateOutput, DIVISION_BY_ZERO_ERROR } from './calculator';
 
 const parser = new Parser();
 
@@ -61,7 +61,7 @@ export const evaluateExpression = (input: string): CalculateOutput => {
   try {
     const output = parser.parse(trimmed).evaluate();
     if (typeof output !== 'number' || !Number.isFinite(output)) {
-      return { error: 'Error: division by zero' };
+      return { error: DIVISION_BY_ZERO_ERROR };
     }
     return { result: output };
   } catch {

@@ -5,6 +5,7 @@ import {
   parseInput,
   Operation,
   getOperationSymbol,
+  DIVISION_BY_ZERO_ERROR,
 } from '../utils/calculator';
 import {
   evaluateExpression,
@@ -14,7 +15,12 @@ import {
 } from '../utils/expression';
 import { copyToClipboard } from '../utils/clipboard';
 import { splitKeystrokes } from '../utils/keystrokes';
+import { loadHistory, saveHistory, appendHistory } from '../utils/history';
+import type { HistoryEntry } from '../utils/history';
 import { t } from '../locales';
+
+export { appendHistory, MAX_HISTORY } from '../utils/history';
+export type { HistoryEntry } from '../utils/history';
 
 type Screen =
   | 'menu'
@@ -23,16 +29,6 @@ type Screen =
   | 'input-mul'
   | 'input-div'
   | 'input-expression';
-
-export type HistoryEntry =
-  | {
-      kind: 'calculation';
-      a: number;
-      b: number;
-      operation: Operation;
-      result: number;
-    }
-  | { kind: 'expression'; expression: string; result: number };
 
 export interface AppState {
   screen: Screen;
@@ -45,12 +41,24 @@ export interface AppState {
   expressionCursor: number;
   operation: Operation | null;
   history: HistoryEntry[];
+  historyCleared: boolean;
   copyFeedback: 'copied' | 'copy-failed' | null;
 }
 
-export const MAX_HISTORY = 5;
-const MENU_OPTIONS = 6;
-const COPY_FEEDBACK_TIMEOUT = 1500;
+const FEEDBACK_TIMEOUT = 1500;
+
+const OPERATIONS: readonly Operation[] = ['sum', 'sub', 'mul', 'div'];
+const BINARY_SCREENS: Record<Operation, Screen> = {
+  sum: 'input-sum',
+  sub: 'input-sub',
+  mul: 'input-mul',
+  div: 'input-div',
+};
+const EXPRESSION_MENU_INDEX = OPERATIONS.length;
+const CLEAR_HISTORY_MENU_INDEX = EXPRESSION_MENU_INDEX + 1;
+// 4 binary operations + expression + clear history + exit
+const MENU_OPTIONS = CLEAR_HISTORY_MENU_INDEX + 2;
+const BINARY_INPUT_CHARS = /^[0-9.-]$/;
 
 export const isValidInput = (current: string, newChar: string): boolean => {
   if (newChar === '.') {
@@ -87,15 +95,15 @@ const NO_KEY_FLAGS: KeyInput = {
 };
 
 const hasNamedKey = (key: KeyInput): boolean =>
-  key.upArrow === true ||
-  key.downArrow === true ||
-  key.leftArrow === true ||
-  key.rightArrow === true ||
-  key.return === true ||
-  key.escape === true ||
-  key.backspace === true ||
-  key.delete === true ||
-  key.ctrl === true;
+  key.upArrow ||
+  key.downArrow ||
+  key.leftArrow ||
+  key.rightArrow ||
+  key.return ||
+  key.escape ||
+  key.backspace ||
+  key.delete ||
+  key.ctrl;
 
 const calculateResult = (
   inputs: string[],
@@ -121,18 +129,13 @@ const calculateExpressionResult = (
   }
   const output = evaluateExpression(expression);
   if ('error' in output) {
-    if (output.error === 'Error: division by zero') {
+    if (output.error === DIVISION_BY_ZERO_ERROR) {
       return { result: undefined, error: t('input.errorDivZero') };
     }
     return { result: undefined, error: t('input.errorInvalidExpression') };
   }
   return { result: output.result, error: undefined };
 };
-
-export const appendHistory = (
-  history: HistoryEntry[],
-  entry: HistoryEntry
-): HistoryEntry[] => [...history, entry].slice(-MAX_HISTORY);
 
 export const useAppInput = (options?: { inputEnabled?: boolean }) => {
   const isActive = options?.inputEnabled ?? true;
@@ -144,94 +147,34 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     expressionInput: '',
     expressionCursor: 0,
     operation: null,
-    history: [],
+    history: loadHistory(),
+    historyCleared: false,
     copyFeedback: null,
   });
 
-  const goToMenu = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'menu',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: null,
-      error: undefined,
-      history: s.history,
-      copyFeedback: null,
-    }));
-  }, []);
+  const goToScreen = useCallback(
+    (screen: Screen, operation: Operation | null) => {
+      setState((s: AppState) => ({
+        ...s,
+        screen,
+        selectedIndex: 0,
+        inputIndex: 0,
+        inputs: ['', ''],
+        expressionInput: '',
+        expressionCursor: 0,
+        operation,
+        result: undefined,
+        error: undefined,
+        historyCleared: false,
+        copyFeedback: null,
+      }));
+    },
+    []
+  );
 
-  const goToInputSum = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'input-sum',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: 'sum',
-      history: s.history,
-      copyFeedback: null,
-    }));
-  }, []);
-
-  const goToInputSub = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'input-sub',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: 'sub',
-      history: s.history,
-      copyFeedback: null,
-    }));
-  }, []);
-
-  const goToInputMul = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'input-mul',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: 'mul',
-      history: s.history,
-      copyFeedback: null,
-    }));
-  }, []);
-
-  const goToInputDiv = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'input-div',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: 'div',
-      history: s.history,
-      copyFeedback: null,
-    }));
-  }, []);
-
-  const goToInputExpression = useCallback(() => {
-    setState((s: AppState) => ({
-      screen: 'input-expression',
-      selectedIndex: 0,
-      inputIndex: 0,
-      inputs: ['', ''],
-      expressionInput: '',
-      expressionCursor: 0,
-      operation: null,
-      error: undefined,
-      history: s.history,
-      copyFeedback: null,
-    }));
+  const handleClearHistory = useCallback(() => {
+    setState((s: AppState) => ({ ...s, history: [], historyCleared: true }));
+    saveHistory([]);
   }, []);
 
   const handleCopyResult = (): void => {
@@ -265,9 +208,21 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       setState((s: AppState) =>
         s.copyFeedback === null ? s : { ...s, copyFeedback: null }
       );
-    }, COPY_FEEDBACK_TIMEOUT);
+    }, FEEDBACK_TIMEOUT);
     return () => clearTimeout(timer);
   }, [state.copyFeedback]);
+
+  useEffect(() => {
+    if (!state.historyCleared) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setState((s: AppState) =>
+        s.historyCleared ? { ...s, historyCleared: false } : s
+      );
+    }, FEEDBACK_TIMEOUT);
+    return () => clearTimeout(timer);
+  }, [state.historyCleared]);
 
   const isBinaryInputScreen = (screen: Screen): boolean => {
     return (
@@ -291,16 +246,20 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           selectedIndex: (s.selectedIndex + 1) % MENU_OPTIONS,
         }));
       } else if (key.return) {
-        if (state.selectedIndex === 0) goToInputSum();
-        else if (state.selectedIndex === 1) goToInputSub();
-        else if (state.selectedIndex === 2) goToInputMul();
-        else if (state.selectedIndex === 3) goToInputDiv();
-        else if (state.selectedIndex === 4) goToInputExpression();
-        else process.exit(0);
+        if (state.selectedIndex < OPERATIONS.length) {
+          const operation = OPERATIONS[state.selectedIndex];
+          goToScreen(BINARY_SCREENS[operation], operation);
+        } else if (state.selectedIndex === EXPRESSION_MENU_INDEX) {
+          goToScreen('input-expression', null);
+        } else if (state.selectedIndex === CLEAR_HISTORY_MENU_INDEX) {
+          handleClearHistory();
+        } else {
+          process.exit(0);
+        }
       }
     } else if (isBinaryInputScreen(state.screen)) {
       if (key.escape) {
-        goToMenu();
+        goToScreen('menu', null);
         return;
       }
       if (key.ctrl && input === 'y') {
@@ -327,35 +286,25 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           return;
         }
         const result = state.result;
+        const entry: HistoryEntry = {
+          kind: 'calculation',
+          a: parseInput(inputs[0]),
+          b: parseInput(inputs[1]),
+          operation,
+          result,
+        };
+        const nextHistory = appendHistory(state.history, entry);
+        saveHistory(nextHistory);
         setState((s: AppState) => ({
           ...s,
           inputs: ['', ''],
           inputIndex: 0,
           ...calculateResult(['', ''], s.operation),
-          history: appendHistory(s.history, {
-            kind: 'calculation',
-            a: parseInput(inputs[0]),
-            b: parseInput(inputs[1]),
-            operation,
-            result,
-          }),
+          history: nextHistory,
         }));
         return;
       }
-      if (
-        input === '0' ||
-        input === '1' ||
-        input === '2' ||
-        input === '3' ||
-        input === '4' ||
-        input === '5' ||
-        input === '6' ||
-        input === '7' ||
-        input === '8' ||
-        input === '9' ||
-        input === '.' ||
-        input === '-'
-      ) {
+      if (BINARY_INPUT_CHARS.test(input)) {
         setState((s: AppState) => {
           if (!isValidInput(s.inputs[s.inputIndex], input)) {
             return s;
@@ -368,6 +317,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
             ...calculateResult(newInputs, s.operation),
           };
         });
+        return;
       }
       if (key.backspace || key.delete || input === '\b' || input === '\u007f') {
         setState((s: AppState) => {
@@ -382,7 +332,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       }
     } else if (state.screen === 'input-expression') {
       if (key.escape) {
-        goToMenu();
+        goToScreen('menu', null);
         return;
       }
       if (key.ctrl && input === 'y') {
@@ -412,16 +362,19 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
           return;
         }
         const result = state.result;
+        const entry: HistoryEntry = {
+          kind: 'expression',
+          expression,
+          result,
+        };
+        const nextHistory = appendHistory(state.history, entry);
+        saveHistory(nextHistory);
         setState((s: AppState) => ({
           ...s,
           expressionInput: '',
           expressionCursor: 0,
           ...calculateExpressionResult(''),
-          history: appendHistory(s.history, {
-            kind: 'expression',
-            expression,
-            result,
-          }),
+          history: nextHistory,
         }));
         return;
       }
@@ -473,13 +426,5 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     { isActive }
   );
 
-  return {
-    state,
-    goToMenu,
-    goToInputSum,
-    goToInputSub,
-    goToInputMul,
-    goToInputDiv,
-    goToInputExpression,
-  };
+  return { state };
 };
