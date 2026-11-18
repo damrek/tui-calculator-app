@@ -8,19 +8,27 @@ on:
 permissions:
   contents: write
 
+# One release per tag: a re-pushed tag waits instead of racing a running release.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      # actions/checkout v7.0.1
+      - uses: actions/checkout@v7.0.1
 
-      - uses: actions/setup-node@v7
+      # actions/setup-node v7.1.0
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: 24
           cache: npm
 
-      - uses: oven-sh/setup-bun@v2
+      # oven-sh/setup-bun v2.2.0
+      - uses: oven-sh/setup-bun@v2.2.0
 
       - run: npm ci
 
@@ -30,14 +38,17 @@ jobs:
 
       - run: npm run build
 
-      - run: bun build --compile --target=bun-linux-x64   ./dist/index.js --outfile ./dist/calculator-linux
-      - run: bun build --compile --target=bun-windows-x64 ./dist/index.js --outfile ./dist/calculator.exe
-      - run: bun build --compile --target=bun-darwin-arm64 ./dist/index.js --outfile ./dist/calculator-macos
+      # Compile the three platform binaries through the package.json scripts
+      # (build:linux / build:win / build:mac) so CI and local `npm run dist`
+      # cannot drift apart.
+      - run: npm run build:all
 
-      - uses: softprops/action-gh-release@v3
+      # softprops/action-gh-release v3.0.4
+      - uses: softprops/action-gh-release@v3.0.4
         with:
           files: |
             dist/calculator-linux
             dist/calculator.exe
             dist/calculator-macos
           generate_release_notes: true
+          fail_on_unmatched_files: true
