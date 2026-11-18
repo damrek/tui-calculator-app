@@ -6,6 +6,8 @@
     "mul": "Zwei Zahlen multiplizieren",
     "div": "Zwei Zahlen dividieren",
     "expression": "Freier Ausdruck",
+    "clearHistory": "Verlauf löschen",
+    "historyCleared": "Verlauf gelöscht",
     "exit": "Beenden",
     "navHelp": "↑/↓ zum Navigieren, Enter zum Auswählen"
   },

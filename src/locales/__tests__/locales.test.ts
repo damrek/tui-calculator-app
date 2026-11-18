@@ -105,4 +105,12 @@ describe('locales', () => {
       expect(t('themeSelector.hint')).not.toBe('themeSelector.hint');
     }
   });
+
+  it('should translate the clear-history label and its feedback in every language', () => {
+    for (const language of languages) {
+      setLanguage(language);
+      expect(t('menu.clearHistory')).not.toBe('menu.clearHistory');
+      expect(t('menu.historyCleared')).not.toBe('menu.historyCleared');
+    }
+  });
 });

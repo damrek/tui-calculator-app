@@ -40,11 +40,12 @@ export interface AppState {
   expressionCursor: number;
   operation: Operation | null;
   history: HistoryEntry[];
+  historyCleared: boolean;
   copyFeedback: 'copied' | 'copy-failed' | null;
 }
 
-const MENU_OPTIONS = 6;
-const COPY_FEEDBACK_TIMEOUT = 1500;
+const MENU_OPTIONS = 7;
+const FEEDBACK_TIMEOUT = 1500;
 
 export const isValidInput = (current: string, newChar: string): boolean => {
   if (newChar === '.') {
@@ -134,6 +135,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
     expressionCursor: 0,
     operation: null,
     history: loadHistory(),
+    historyCleared: false,
     copyFeedback: null,
   });
 
@@ -148,6 +150,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       operation: null,
       error: undefined,
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
   }, []);
@@ -162,6 +165,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionCursor: 0,
       operation: 'sum',
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
   }, []);
@@ -176,6 +180,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionCursor: 0,
       operation: 'sub',
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
   }, []);
@@ -190,6 +195,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionCursor: 0,
       operation: 'mul',
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
   }, []);
@@ -204,6 +210,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       expressionCursor: 0,
       operation: 'div',
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
   }, []);
@@ -219,8 +226,14 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       operation: null,
       error: undefined,
       history: s.history,
+      historyCleared: false,
       copyFeedback: null,
     }));
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setState((s: AppState) => ({ ...s, history: [], historyCleared: true }));
+    saveHistory([]);
   }, []);
 
   const handleCopyResult = (): void => {
@@ -254,9 +267,21 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
       setState((s: AppState) =>
         s.copyFeedback === null ? s : { ...s, copyFeedback: null }
       );
-    }, COPY_FEEDBACK_TIMEOUT);
+    }, FEEDBACK_TIMEOUT);
     return () => clearTimeout(timer);
   }, [state.copyFeedback]);
+
+  useEffect(() => {
+    if (!state.historyCleared) {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setState((s: AppState) =>
+        s.historyCleared ? { ...s, historyCleared: false } : s
+      );
+    }, FEEDBACK_TIMEOUT);
+    return () => clearTimeout(timer);
+  }, [state.historyCleared]);
 
   const isBinaryInputScreen = (screen: Screen): boolean => {
     return (
@@ -285,6 +310,7 @@ export const useAppInput = (options?: { inputEnabled?: boolean }) => {
         else if (state.selectedIndex === 2) goToInputMul();
         else if (state.selectedIndex === 3) goToInputDiv();
         else if (state.selectedIndex === 4) goToInputExpression();
+        else if (state.selectedIndex === 5) handleClearHistory();
         else process.exit(0);
       }
     } else if (isBinaryInputScreen(state.screen)) {

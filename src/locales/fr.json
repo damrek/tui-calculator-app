@@ -6,6 +6,8 @@
     "mul": "Multiplier deux nombres",
     "div": "Diviser deux nombres",
     "expression": "Expression libre",
+    "clearHistory": "Effacer l'historique",
+    "historyCleared": "Historique effacé",
     "exit": "Quitter",
     "navHelp": "Utilisez ↑/↓ pour naviguer, Entrée pour sélectionner"
   },

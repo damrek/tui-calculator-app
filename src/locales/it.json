@@ -6,6 +6,8 @@
     "mul": "Moltiplicare due numeri",
     "div": "Dividere due numeri",
     "expression": "Espressione libera",
+    "clearHistory": "Cancella cronologia",
+    "historyCleared": "Cronologia cancellata",
     "exit": "Esci",
     "navHelp": "Usa ↑/↓ per navigare, Invio per selezionare"
   },

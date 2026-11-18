@@ -729,4 +729,76 @@ describe('useAppInput', () => {
       });
     });
   });
+
+  describe('clear history', () => {
+    beforeEach(() => {
+      historyMocks.loadHistory.mockReturnValue([]);
+      historyMocks.saveHistory.mockClear();
+    });
+
+    it('should clear the seeded history from the menu and persist the empty list', () => {
+      historyMocks.loadHistory.mockReturnValue([
+        { kind: 'expression', expression: '2 + 2', result: 4 },
+      ]);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('menu');
+      expect(result.current.state.history).toEqual([]);
+      expect(historyMocks.saveHistory).toHaveBeenCalledWith([]);
+    });
+
+    it('should keep Exit as the last menu option and still exit', () => {
+      const exitSpy = vi
+        .spyOn(process, 'exit')
+        .mockImplementation((() => undefined) as never);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 6; i++) {
+        fireKey('', { downArrow: true });
+      }
+      expect(result.current.state.selectedIndex).toBe(6);
+
+      fireKey('', { return: true });
+
+      expect(exitSpy).toHaveBeenCalledWith(0);
+      exitSpy.mockRestore();
+    });
+
+    it('should flag the history as cleared after clearing', () => {
+      historyMocks.loadHistory.mockReturnValue([
+        { kind: 'expression', expression: '2 + 2', result: 4 },
+      ]);
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.historyCleared).toBe(true);
+    });
+
+    it('should reset the cleared flag when navigating to a screen', () => {
+      const { result } = renderHook(() => useAppInput());
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { downArrow: true });
+      }
+      fireKey('', { return: true });
+      expect(result.current.state.historyCleared).toBe(true);
+
+      for (let i = 0; i < 5; i++) {
+        fireKey('', { upArrow: true });
+      }
+      fireKey('', { return: true });
+
+      expect(result.current.state.screen).toBe('input-sum');
+      expect(result.current.state.historyCleared).toBe(false);
+    });
+  });
 });

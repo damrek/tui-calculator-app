@@ -117,6 +117,13 @@ const App: React.FC = () => {
         <Text> {t('menu.expression')}</Text>
       )}
       {state.selectedIndex === 5 ? (
+        <Text bold color={colors.selected}>
+          ▶ {t('menu.clearHistory')}
+        </Text>
+      ) : (
+        <Text> {t('menu.clearHistory')}</Text>
+      )}
+      {state.selectedIndex === 6 ? (
         <Text bold color={colors.danger}>
           ▶ {t('menu.exit')}
         </Text>
@@ -226,6 +233,11 @@ const App: React.FC = () => {
   return (
     <Box flexDirection="column" padding={1}>
       {state.screen === 'menu' && renderMenu()}
+      {state.screen === 'menu' && state.historyCleared && (
+        <Text bold color={colors.success}>
+          {t('menu.historyCleared')}
+        </Text>
+      )}
       {state.screen === 'input-sum' && renderInput()}
       {state.screen === 'input-sub' && renderInput()}
       {state.screen === 'input-mul' && renderInput()}

@@ -9,7 +9,7 @@ A terminal calculator built with [Ink](https://github.com/vadimdemedes/ink) (Rea
 - Editable input with a visible cursor — move with ←/→, insert or backspace at any position
 - Smart input validation (input masking) — invalid entries like `1.2.3`, `5-`, or doubled signs are rejected as you type
 - Division by zero handled gracefully with an error message instead of a crash
-- History of the last 5 operations, shown inline below the result and persisted across sessions in `~/.calculator/history.json`
+- History of the last 5 operations, shown inline below the result and persisted across sessions in `~/.calculator/history.json` — clear it anytime from the menu
 - Press Enter to save an operation to the history and stay on the screen, ready for the next one (Esc goes back to the menu)
 - Copy the full expression (`5 + 3 = 8`) to the clipboard
 - Five languages and four themes, both persisted across sessions
